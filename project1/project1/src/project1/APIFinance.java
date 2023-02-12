@@ -11,7 +11,12 @@ public class APIFinance {
     private static final String BASE_URL = "https://www.alphavantage.co/query?";
     private final static String apiKey = "8WBJ9AS0QW5XAZYD";
 
+    private static int limitCount = 0;
+    private static long startTime = 0;
+    private static final long timeLimit = 60000;
+
     public static BigDecimal getPrice(final String symbol) {
+        sleepForLimit();
         BigDecimal price = new BigDecimal(0);
         try {
             URL url = new URL(BASE_URL +
@@ -30,6 +35,22 @@ public class APIFinance {
             System.out.println("failure sending request");
         }
         return price;
+    }
+
+    public static void sleepForLimit() {
+        if (limitCount == 0) {
+            startTime = System.currentTimeMillis(); // initialized starting time
+        }
+        limitCount++;
+        if (limitCount > 5) { // when it is the six request within a time limit
+            try {
+                Thread.sleep(timeLimit - (System.currentTimeMillis() - startTime));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            limitCount = 1; // this is the first request in the next time limit range
+            startTime = System.currentTimeMillis();
+        }
     }
 
 }
