@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 public class ShareUtil {
     public static ShareInfo getPrice(final String symbol) {
-        return new ShareInfo(symbol, APIFinance.getPrice(symbol));
+        return new ShareInfo(symbol, APIFinance.getPrice(symbol, false));
     }
 
     public static Predicate<ShareInfo> isPriceLessThan(final int price) {

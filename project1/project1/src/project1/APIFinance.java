@@ -9,15 +9,15 @@ import java.net.URLConnection;
 
 public class APIFinance {
     private static final String BASE_URL = "https://www.alphavantage.co/query?";
-    private final static String apiKey = "8WBJ9AS0QW5XAZYD";
+    private final static String apiKey = "O0IORAI4LIZIK61W";
 
-    private static int limitCount = 0;
-    private static long startTime = 0;
     private static final long timeLimit = 60000;
 
-    public static BigDecimal getPrice(final String symbol) {
-        sleepForLimit();
+    public static BigDecimal getPrice(final String symbol, Boolean isRetry) {
+        // sleepForLimit();
+        Boolean rFlag = isRetry == null ? false : isRetry;
         BigDecimal price = new BigDecimal(0);
+
         try {
             URL url = new URL(BASE_URL +
                     "function=GLOBAL_QUOTE&symbol=" + symbol + "&apikey=" + apiKey);
@@ -26,31 +26,32 @@ public class APIFinance {
             BufferedReader bufferedReader = new BufferedReader(inputStream);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+
                 if (line.contains("price")) {
                     price = new BigDecimal(line.split("\"")[3].trim());
+                } else if (line.contains(
+                    "Our standard API call frequency is 5 calls per minute and 500 calls per day.")) {
+                    if (!rFlag) {
+                        try {
+                            Thread.sleep(timeLimit);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        price = getPrice(symbol, true);
+                    } else {
+                        System.out.println("Exceeded API call limitation for today!!!");
+                        break;
+                    }
+                } else if (line.contains("{}")) {
+                    System.out.println(symbol + " was not found in the API!!!");
+                    break;
                 }
             }
             bufferedReader.close();
         } catch (IOException e) {
             System.out.println("failure sending request");
         }
+
         return price;
     }
-
-    public static void sleepForLimit() {
-        if (limitCount == 0) {
-            startTime = System.currentTimeMillis(); // initialized starting time
-        }
-        limitCount++;
-        if (limitCount > 5) { // when it is the six request within a time limit
-            try {
-                Thread.sleep(timeLimit - (System.currentTimeMillis() - startTime));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            limitCount = 1; // this is the first request in the next time limit range
-            startTime = System.currentTimeMillis();
-        }
-    }
-
 }
