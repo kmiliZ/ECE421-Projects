@@ -1,5 +1,4 @@
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,14 +17,12 @@ public class APIFinance {
     private static final Semaphore sem = new Semaphore(5);
 
     public static BigDecimal getPrice(final String symbol, Boolean isRetry) {
-        // sleepForLimit();
         Boolean rFlag = isRetry == null ? false : isRetry;
         BigDecimal price = new BigDecimal(0);
-
         try {
-            if(rFlag) {
+            if (rFlag) {
                 sem.acquire();
-                if(limitReached) {
+                if (limitReached) {
                     System.out.println("Exceeded API call limitation for today!!!");
                     return price;
                 }
@@ -35,9 +32,11 @@ public class APIFinance {
                     e.printStackTrace();
                 }
             } else {
-                while(sem.availablePermits()<5) {};
+                while (sem.availablePermits() < 5) {
+                }
+                ;
             }
-            
+
             URL url = new URL(BASE_URL +
                     "function=GLOBAL_QUOTE&symbol=" + symbol + "&apikey=" + apiKey);
             URLConnection connection = url.openConnection();
@@ -45,14 +44,10 @@ public class APIFinance {
             BufferedReader bufferedReader = new BufferedReader(inputStream);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                // ------------------------------------------
-                // debug
-                System.out.println(line);
-
                 if (line.contains("price")) {
                     price = new BigDecimal(line.split("\"")[3].trim());
                 } else if (line.contains(
-                    "Our standard API call frequency is 5 calls per minute and 500 calls per day.")) {
+                        "Our standard API call frequency is 5 calls per minute and 500 calls per day.")) {
                     if (!rFlag) {
                         price = getPrice(symbol, true);
                         break;
@@ -72,7 +67,8 @@ public class APIFinance {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            if(rFlag) sem.release();
+            if (rFlag)
+                sem.release();
         }
 
         return price;
