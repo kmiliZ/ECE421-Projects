@@ -19,7 +19,7 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
-impl<T: std::cmp::PartialOrd> TreeNode<T> {
+impl<T> TreeNode<T> {
     fn new(z: T) -> Self {
         Self {
             color: NodeColor::Red,
@@ -29,23 +29,13 @@ impl<T: std::cmp::PartialOrd> TreeNode<T> {
             right: None,
         }
     }
-    fn is_greater(node: &mut TreeNode<T>, z: T) -> bool {
-        if node.key < z {
-            return true;
-        }
-        false
-    }
     // pub fn insert<T>(mut self, z: T) {}
 }
 fn insert(tree: &mut RedBlackTree, key: u32) {
-    if let Some(node) = tree {
+    if let Some(ref mut node) = tree {
         println!("insert!");
-        let a = node.clone().as_ptr();
-        // if TreeNode::is_greater(&*a, key) {
-        //     println!("insert rights");
-        // }
     } else {
-        println!("root node!");
+        println!("insert!");
         let mut new_node = TreeNode::new(key);
         let rc = Rc::new(RefCell::new(new_node));
         *tree = Some(rc.clone());
@@ -57,30 +47,8 @@ fn print_tree(tree: &mut RedBlackTree) {
         unsafe {
             let b = &*n.as_ptr();
             println!("tree:{}", b.key);
-            if let Some(left) = &b.borrow().left {
-                print_tree(&mut Some(left.clone()));
-            }
-            // if let Some(right) = b.right {
-            //     print_tree(&mut Some(right));
-            // }
         }
     } else {
-        println!("empty node");
+        println!("empty tree");
     }
-}
-
-fn main() {
-    let mut tree: RedBlackTree = None;
-
-    print_tree(&mut tree);
-
-    println!("do you want to insert?");
-
-    let line: String = read!("{}\n");
-    // println!("{}", line);
-    insert(&mut tree, 12);
-    print_tree(&mut tree);
-    insert(&mut tree, 12);
-
-    println!("Hello, world!");
 }
