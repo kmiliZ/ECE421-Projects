@@ -92,6 +92,50 @@ impl RedBlackTree {
         // parent => black
         // uncle => black
         // grandparent => red
+
+
+    }
+
+    // Helper method to get the parent of a node
+    fn parent(&self) -> RedBlackTree {
+        self.parent.clone().and_then(|p| Some(p.borrow().clone()))
+    }
+
+    // Helper method to get the grandparent of a node
+    fn grandparent(&self) -> RedBlackTree {
+        self.parent
+            .as_ref()
+            .and_then(|p| p.borrow().parent.clone())
+    }
+
+
+    // Helper method to get the uncle of a node
+    fn uncle(&self) -> RedBlackTree {
+        self.grandparent()
+            .and_then(|g| {
+                if let Some(p) = self.parent() {
+                    if p == g.borrow().left {
+                        g.borrow().right.clone()
+                    } else {
+                        g.borrow().left.clone()
+                    }
+                } else {
+                    None
+                }
+            })
+    }
+
+    // Helper method to get the sibling of a node
+    fn sibling(&self) -> RedBlackTree {
+        if let Some(p) = self.parent() {
+            if self == p.borrow().left {
+                p.borrow().right.clone()
+            } else {
+                p.borrow().left.clone()
+            }
+        } else {
+            None
+        }
     }
 
     fn insert(self: &mut RedBlackTree, key: u32) {
