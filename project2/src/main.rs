@@ -1,5 +1,6 @@
 use text_io::read;
 
+mod avl;
 use std::cell::RefCell;
 use std::rc::Rc;
 #[derive(Clone, Debug, PartialEq)]
@@ -191,6 +192,7 @@ impl RedBlackTree {
 }
 
 fn main() {
+    /*
     let mut tree: RedBlackTree = RedBlackTree::new();
 
     println!("do you want to insert?");
@@ -207,5 +209,11 @@ fn main() {
 
     // println!("12 1 {:#?}", tree);
 
-    // println!("12 1 13{:#?}", tree);
+    // println!("12 1 13{:#?}", tree);*/
+
+    let mut tree = avl::AVLTree::new();
+    tree.insert(10);
+    tree.insert(5);
+
+    println!("Tree: {:#?}", tree);
 }

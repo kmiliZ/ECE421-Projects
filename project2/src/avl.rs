@@ -99,31 +99,30 @@ impl<T: std::cmp::Ord + Clone> AVLTree<T> {
     fn insert_recursive(root: Rc<RefCell<Node<T>>>, node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
         let root_data = root.borrow().data.clone();
         let node_data = node.borrow().data.clone();
-        let mut root_mut = root.borrow_mut(); // Get a mutable reference to root
         if node_data < root_data {
-            match root_mut.left.take() {
+            match root.borrow_mut().left.take() {
                 None => {
-                    root_mut.left = Some(node.clone());
+                    root.borrow_mut().left = Some(node.clone());
                 }
                 Some(left) => {
-                    root_mut.left = Some(Self::insert_recursive(left, node.clone()));
+                    root.borrow_mut().left = Some(Self::insert_recursive(left, node.clone()));
                 }
             }
         } else {
-            match root_mut.right.take() {
+            match root.borrow_mut().right.take() {
                 None => {
-                    root_mut.right = Some(node.clone());
+                    root.borrow_mut().right = Some(node.clone());
                 }
                 Some(right) => {
-                    root_mut.right = Some(Self::insert_recursive(right, node.clone()));
+                    root.borrow_mut().right = Some(Self::insert_recursive(right, node.clone()));
                 }
             }
         }
-        update_height(&Some(root_mut)); // Use the mutable reference to update the height
+        update_height(&Some(root.clone()));
         rebalance(root)
     }
-
 }
+
 
 fn main(){
 	let mut tree = AVLTree::new();
