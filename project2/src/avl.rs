@@ -37,30 +37,36 @@ fn update_height<T>(node: &Option<Rc<RefCell<Node<T>>>>) {
 
 
 fn rotate_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
+    // maps are used in case the value is none on the right side.
+    println!("ROTATING LEFT LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
     let right = node.borrow().right.as_ref().unwrap().clone();
-    let left = right.borrow().left.as_ref().unwrap().clone();
-    node.borrow_mut().right = Some(left.clone());
+    let left = right.borrow().left.as_ref().map(|node| node.clone());
+    node.borrow_mut().right = left.clone();
     right.borrow_mut().left = Some(node.clone());
-    update_height(&node.borrow().right);
+    //update_height(&node.borrow().right);
     update_height(&right.borrow().left);
     right
 }
 
 fn rotate_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
+    // maps are used in case the value is none on the left side
+    println!("ROTATING RIGHT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     let left = node.borrow().left.as_ref().unwrap().clone();
-    let right = left.borrow().right.as_ref().unwrap().clone();
-    node.borrow_mut().left = Some(right.clone());
+    let right = left.borrow().right.as_ref().map(|node| node.clone());
+    node.borrow_mut().left = right.clone();
     left.borrow_mut().right = Some(node.clone());
-    update_height(&node.borrow().left);
+    //update_height(&node.borrow().left);
     update_height(&left.borrow().right);
     left
 }
 
 // https://www.youtube.com/watch?v=vRwi_UcZGjU for explanation on rotation balance logic
 fn rebalance<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
+    println!("BALANCING BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     let balance = balance_factor(&Some(node.clone()));
     if balance > 1 {
-        // When tree is right-heavy, perform left rotation then right rotation
+        // When tree is right-heavy, perform left rotation then right rotation, otherwise just do a right rotation
+        
         let left_balance = balance_factor(&node.borrow().left);
         if left_balance < 0 {
             node.borrow_mut().left = Some(rotate_left(node.borrow().left.as_ref().unwrap().clone()));
@@ -134,17 +140,47 @@ impl<T: std::cmp::Ord + Clone> AVLTree<T> {
                             right: None,
                         }
                     },
-                });   
+                }
+             );   
         } else {
-            match root.borrow_mut().right.take() {
-                None => {
-                    root.borrow_mut().right = Some(node.clone());
+            root.replace_with(|old| 
+                match old {
+                    Node{data, height, left: Some(y), right: None} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(Rc::clone(y)),
+                            right: Some(node.clone()),
+                        }
+                    },
+                    Node{data, height, left: Some(y), right: Some(x)} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(Rc::clone(y)),
+                            right: Some(Self::insert_recursive(x.clone(), node.clone())),
+                        }
+                    },
+                    Node{data, height, left: None, right: None} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: None,
+                            right: Some(node.clone()),
+                        }
+                    },
+                    Node{data, height, left: None, right: Some(x)} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: None,
+                            right: Some(Self::insert_recursive(x.clone(), node.clone())),
+                        }
+                    },
                 }
-                Some(right) => {
-                    root.borrow_mut().right = Some(Self::insert_recursive(right, node.clone()));
-                }
-            }
+            );
         }
+        println!("CHECKING HEIGHT HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         update_height(&Some(root.clone()));
         rebalance(root)
     }
@@ -155,6 +191,9 @@ fn main(){
 	let mut tree = AVLTree::new();
     tree.insert(10);
     tree.insert(5);
+    tree.insert(4);
+    tree.insert(3);
+    tree.insert(2);
 
     println!("Tree: {:#?}", tree);
 }
