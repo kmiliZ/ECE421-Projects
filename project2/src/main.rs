@@ -48,28 +48,135 @@ impl RedBlackTree {
     fn new() -> RedBlackTree {
         RedBlackTree { root: None }
     }
+    fn clone(&self) -> Self {
+        if let Some(node) = &self.root {
+            return RedBlackTree {
+                root: Some(Rc::clone(node)),
+            };
+        } else {
+            return RedBlackTree { root: None };
+        }
+    }
 
     // fix should be called after we inserted a leaf node
     // deal with the error
     fn fix(self: &mut RedBlackTree) {
-        match self.root {
+        match &self.root {
             Some(current_node) => {
-                current_node.replace_with(|old|
-                match old {
-                    TreeNode{ color, key, parent: RedBlackTree {root: None}, left, right } => {
-                        TreeNode::new(12)
-                    },
-                    TreeNode{ color, key, parent: RedBlackTree {root: Some(x)}, left, right } => {
-                        x.replace_with(|par|
-                        match par {
-                            TreeNode{color: NodeColor::Black, key, parent, left, right }
-                        })
-                    },
+                current_node.replace_with(|old| match old {
+                    TreeNode {
+                        color,
+                        key,
+                        parent: RedBlackTree { root: None },
+                        left,
+                        right,
+                    } => {
+                        // it is root, recolor
+                        match old {
+                            TreeNode {
+                                color,
+                                key: k,
+                                parent,
+                                left: RedBlackTree { root: Some(l) },
+                                right: RedBlackTree { root: Some(r) },
+                            } => TreeNode {
+                                color: NodeColor::Black,
+                                key: k.clone(),
+                                parent: RedBlackTree { root: None },
+                                left: RedBlackTree {
+                                    root: Some(Rc::clone(l)),
+                                },
+                                right: RedBlackTree {
+                                    root: Some(Rc::clone(r)),
+                                },
+                            },
+                            TreeNode {
+                                color,
+                                key: k,
+                                parent,
+                                left: RedBlackTree { root: None },
+                                right: RedBlackTree { root: None },
+                            } => TreeNode {
+                                color: NodeColor::Black,
+                                key: k.clone(),
+                                parent: RedBlackTree { root: None },
+                                left: RedBlackTree { root: None },
+                                right: RedBlackTree { root: None },
+                            },
+                            TreeNode {
+                                color,
+                                key: k,
+                                parent,
+                                left: RedBlackTree { root: Some(l) },
+                                right: RedBlackTree { root: None },
+                            } => TreeNode {
+                                color: NodeColor::Black,
+                                key: k.clone(),
+                                parent: RedBlackTree { root: None },
+                                left: RedBlackTree {
+                                    root: Some(Rc::clone(l)),
+                                },
+                                right: RedBlackTree { root: None },
+                            },
+                            TreeNode {
+                                color,
+                                key: k,
+                                parent,
+                                left: RedBlackTree { root: None },
+                                right: RedBlackTree { root: Some(r) },
+                            } => TreeNode {
+                                color: NodeColor::Black,
+                                key: k.clone(),
+                                parent: RedBlackTree { root: None },
+                                left: RedBlackTree { root: None },
+                                right: RedBlackTree {
+                                    root: Some(Rc::clone(r)),
+                                },
+                            },
+                        }
+                    }
+                    TreeNode {
+                        color,
+                        key,
+                        parent:
+                            RedBlackTree {
+                                root: Some(par_node),
+                            },
+                        left,
+                        right,
+                    } => par_node.replace_with(|par| match par {
+                        // if it has a parent, then we match parent's color
+                        TreeNode {
+                            color: NodeColor::Black,
+                            key,
+                            parent: p,
+                            left: l,
+                            right: r,
+                        } => {
+                            // black parent, nothing to fix
+                            TreeNode {
+                                color: NodeColor::Black,
+                                key: par.key.clone(),
+                                parent: p.clone(),
+                                left: l.clone(),
+                                right: r.clone(),
+                            }
+                        }
+                        TreeNode {
+                            color: NodeColor::Red,
+                            key,
+                            parent,
+                            left,
+                            right,
+                        } => {
+                            // fix
+                            TreeNode::new(12)
+                        }
+                    }),
                 });
-            },
+            }
             None => todo!(),
         }
-
     }
 
     fn insert(self: &mut RedBlackTree, key: u32) {
