@@ -68,73 +68,16 @@ impl RedBlackTree {
                         color,
                         key,
                         parent: RedBlackTree { root: None },
-                        left,
-                        right,
-                    } => {
-                        // it is root, recolor
-                        match old {
-                            TreeNode {
-                                color,
-                                key: k,
-                                parent,
-                                left: RedBlackTree { root: Some(l) },
-                                right: RedBlackTree { root: Some(r) },
-                            } => TreeNode {
-                                color: NodeColor::Black,
-                                key: k.clone(),
-                                parent: RedBlackTree { root: None },
-                                left: RedBlackTree {
-                                    root: Some(Rc::clone(l)),
-                                },
-                                right: RedBlackTree {
-                                    root: Some(Rc::clone(r)),
-                                },
-                            },
-                            TreeNode {
-                                color,
-                                key: k,
-                                parent,
-                                left: RedBlackTree { root: None },
-                                right: RedBlackTree { root: None },
-                            } => TreeNode {
-                                color: NodeColor::Black,
-                                key: k.clone(),
-                                parent: RedBlackTree { root: None },
-                                left: RedBlackTree { root: None },
-                                right: RedBlackTree { root: None },
-                            },
-                            TreeNode {
-                                color,
-                                key: k,
-                                parent,
-                                left: RedBlackTree { root: Some(l) },
-                                right: RedBlackTree { root: None },
-                            } => TreeNode {
-                                color: NodeColor::Black,
-                                key: k.clone(),
-                                parent: RedBlackTree { root: None },
-                                left: RedBlackTree {
-                                    root: Some(Rc::clone(l)),
-                                },
-                                right: RedBlackTree { root: None },
-                            },
-                            TreeNode {
-                                color,
-                                key: k,
-                                parent,
-                                left: RedBlackTree { root: None },
-                                right: RedBlackTree { root: Some(r) },
-                            } => TreeNode {
-                                color: NodeColor::Black,
-                                key: k.clone(),
-                                parent: RedBlackTree { root: None },
-                                left: RedBlackTree { root: None },
-                                right: RedBlackTree {
-                                    root: Some(Rc::clone(r)),
-                                },
-                            },
-                        }
-                    }
+                        left: l,
+                        right: r,
+                    }// if it current node does not have a parent, it is the root => recolor to black
+                     => TreeNode {
+                        color: NodeColor::Black,
+                        key: old.key.clone(),
+                        parent: RedBlackTree { root: None },
+                        left: l.clone(),
+                        right: r.clone(),
+                    },
                     TreeNode {
                         color,
                         key,
@@ -163,15 +106,96 @@ impl RedBlackTree {
                             }
                         }
                         TreeNode {
+                            // red parent, fix depends on uncle's color
                             color: NodeColor::Red,
                             key,
-                            parent,
+                            parent: gpar,
                             left,
                             right,
-                        } => {
-                            // fix
-                            TreeNode::new(12)
-                        }
+                        } => match par {
+                            TreeNode {
+                                color,
+                                key,
+                                parent: RedBlackTree { root: None },
+                                left: l,
+                                right: r,
+                            }//parent is the root a.k.a parent.parent = nll node
+                             => {TreeNode {
+                                color: NodeColor::Black,
+                                key: par.key.clone(),
+                                parent: RedBlackTree { root: None },
+                                left: l.clone(),
+                                right: r.clone(),
+                            }},
+                            TreeNode {
+                                color,
+                                key,
+                                parent: RedBlackTree { root: Some(gp) },
+                                left: l,
+                                right: r,
+                            } => {
+                                gp.replace_with(|gp| {
+                                    if gp.key<par.key{
+                                        // parent was on the right of gp== uncle on the left
+                                        match gp {
+                                            TreeNode {
+                                                color,
+                                                key,
+                                                parent: p,
+                                                left: RedBlackTree{root:None},
+                                                right: r,
+                                            } => {
+                                                // uncle is nll == uncle is black
+                                                // rotate
+                                            }
+                                            TreeNode {
+                                                color,
+                                                key,
+                                                parent: p,
+                                                left: RedBlackTree{root:Some(l)},
+                                                right: r,
+                                            } => {
+                                                if Rc::clone(l).borrow().color == NodeColor::Red {
+                                                   // recolor 
+                                                } else {
+                                                    // rotate
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // parent on the left of gp == uncle on the right
+                                        match gp {
+                                            TreeNode {
+                                                color,
+                                                key,
+                                                parent: p,
+                                                left: l,
+                                                right: RedBlackTree{root:None},
+                                            } => {
+                                                // uncle is nll == uncle is black
+                                                // rotate
+                                            }
+                                            TreeNode {
+                                                color,
+                                                key,
+                                                parent: p,
+                                                left: l,
+                                                right: RedBlackTree{root:Some(r)},
+                                            } => {
+                                                if Rc::clone(r).borrow().color == NodeColor::Red {
+                                                   // uncle is red =>recolor 
+                                                } else {
+                                                    // rotate
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                    return TreeNode::new(2);
+                                }
+                                )
+                            },
+                        },
                     }),
                 });
             }
@@ -276,7 +300,6 @@ impl RedBlackTree {
 }
 
 fn main() {
-    /*
     let mut tree: RedBlackTree = RedBlackTree::new();
 
     println!("do you want to insert?");
@@ -295,9 +318,9 @@ fn main() {
 
     // println!("12 1 13{:#?}", tree);*/
 
-    let mut tree = avl::AVLTree::new();
-    tree.insert(10);
-    tree.insert(5);
+    // let mut tree = avl::AVLTree::new();
+    // tree.insert(10);
+    // tree.insert(5);
 
-    println!("Tree: {:#?}", tree);
+    // println!("Tree: {:#?}", tree);
 }
