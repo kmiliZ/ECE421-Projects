@@ -38,31 +38,26 @@ fn update_height<T>(node: &Option<Rc<RefCell<Node<T>>>>) {
 
 fn rotate_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     // maps are used in case the value is none on the right side.
-    println!("ROTATING LEFT LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
     let right = node.borrow().right.as_ref().unwrap().clone();
     let left = right.borrow().left.as_ref().map(|node| node.clone());
     node.borrow_mut().right = left.clone();
     right.borrow_mut().left = Some(node.clone());
-    //update_height(&node.borrow().right);
     update_height(&right.borrow().left);
     right
 }
 
 fn rotate_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     // maps are used in case the value is none on the left side
-    println!("ROTATING RIGHT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     let left = node.borrow().left.as_ref().unwrap().clone();
     let right = left.borrow().right.as_ref().map(|node| node.clone());
     node.borrow_mut().left = right.clone();
     left.borrow_mut().right = Some(node.clone());
-    //update_height(&node.borrow().left);
     update_height(&left.borrow().right);
     left
 }
 
 // https://www.youtube.com/watch?v=vRwi_UcZGjU for explanation on rotation balance logic
 fn rebalance<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
-    println!("BALANCING BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     let balance = balance_factor(&Some(node.clone()));
     if balance > 1 {
         // When tree is right-heavy, perform left rotation then right rotation, otherwise just do a right rotation
@@ -180,7 +175,6 @@ impl<T: std::cmp::Ord + Clone> AVLTree<T> {
                 }
             );
         }
-        println!("CHECKING HEIGHT HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         update_height(&Some(root.clone()));
         rebalance(root)
     }
