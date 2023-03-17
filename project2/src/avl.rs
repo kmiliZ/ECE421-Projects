@@ -371,11 +371,41 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         }
     }
 
+    // Will find the min from a given node by continually traversing left
     fn find_min(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
         if let Some(left) = node.borrow().left.clone() {
             return Self::find_min(left);
         }
         node
+    }
+
+    // Checks if the root is none, and if it is then the tree is empty
+    pub fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
+
+    // Returns the height of the root
+    pub fn get_height(&self) -> i32 {
+        self.root.as_ref().map_or(0, |n| n.borrow().height)
+    }
+
+    // Counts the number of leaves by checking if a node has no children and uses recursion
+    pub fn count_leaves(&self) -> usize {
+        fn count_leaves_helper<T: std::cmp::Ord + Clone + Default + std::fmt::Debug>(node: &Option<Rc<RefCell<Node<T>>>>) -> usize {
+            match node {
+                None => 0,
+                Some(n) => {
+                    let node_borrow = n.borrow();
+                    if node_borrow.left.is_none() && node_borrow.right.is_none() {
+                        1
+                    } else {
+                        count_leaves_helper(&node_borrow.left) + count_leaves_helper(&node_borrow.right)
+                    }
+                }
+            }
+        }
+
+        count_leaves_helper(&self.root)
     }
 
 }
