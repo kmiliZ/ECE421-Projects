@@ -408,6 +408,26 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         count_leaves_helper(&self.root)
     }
 
+    // This is the function that is called by the main program, then uses the resursive function to get the rest of the nodes in order
+    pub fn in_order_traversal(&self){
+        if let Some(node) = &self.root {
+            let node_borrow = node.borrow();
+            Self::in_order_traversal_recursive(node_borrow.left.as_ref());
+            println!("{:?}", node_borrow.data);
+            Self::in_order_traversal_recursive(node_borrow.right.as_ref());
+        }
+    }
+
+    // This uses recursion to print out he in order traversal of the AVL tree by traversing through the tree to the left first, then the right
+    fn in_order_traversal_recursive(node: Option<&Rc<RefCell<Node<T>>>>) {
+        if let Some(n) = node {
+            let node_borrow = n.borrow();
+            Self::in_order_traversal_recursive(node_borrow.left.as_ref());
+            println!("{:?}", node_borrow.data);
+            Self::in_order_traversal_recursive(node_borrow.right.as_ref());
+        }
+    }
+
 }
 
 
