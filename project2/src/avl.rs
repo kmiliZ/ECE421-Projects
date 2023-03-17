@@ -100,14 +100,41 @@ impl<T: std::cmp::Ord + Clone> AVLTree<T> {
         let root_data = root.borrow().data.clone();
         let node_data = node.borrow().data.clone();
         if node_data < root_data {
-            match root.borrow_mut().left.take() {
-                None => {
-                    root.borrow_mut().left = Some(node.clone());
-                }
-                Some(left) => {
-                    root.borrow_mut().left = Some(Self::insert_recursive(left, node.clone()));
-                }
-            }
+             root.replace_with(|old| 
+                match old {
+                    Node{data, height, left: None, right: Some(y)} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(node.clone()),
+                            right: Some(Rc::clone(y)),
+                        }
+                    },
+                    Node{data, height, left: Some(x), right: Some(y)} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(Self::insert_recursive(x.clone(), node.clone())),
+                            right: Some(Rc::clone(y)),
+                        }
+                    },
+                    Node{data, height, left: None, right: None} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(node.clone()),
+                            right: None,
+                        }
+                    },
+                    Node{data, height, left: Some(x), right: None} => {
+                        Node {
+                            data: data.clone(),
+                            height: height.clone(),
+                            left: Some(Self::insert_recursive(x.clone(), node.clone())),
+                            right: None,
+                        }
+                    },
+                });   
         } else {
             match root.borrow_mut().right.take() {
                 None => {
