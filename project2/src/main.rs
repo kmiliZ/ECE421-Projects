@@ -52,47 +52,24 @@ impl RedBlackTree {
     // fix should be called after we inserted a leaf node
     // deal with the error
     fn fix(self: &mut RedBlackTree) {
-        // let's see if this tree violates the rules or not
-        if let Some(ref mut current) = self.root {
-            if let Some(ref mut parent) = current.borrow_mut().parent.root {
-                let mut cloned_parent = Rc::clone(parent);
-                // let color = &mut cloned_parent.borrow_mut().color;
-                if Rc::clone(parent).borrow_mut().color == NodeColor::Red {
-                    // if let Some(ref mut grandparent) = parent.borrow_mut().parent.root {
-                    //     if let Some(ref mut uncle) = grandparent.borrow_mut().parent.root {
-                    //         if uncle.borrow_mut().color == NodeColor::Red {
-                    //             println!("DEBUG MESSAGE: Uncle is RED, peform RECOLOR");
-                    //             parent.borrow_mut().color = NodeColor::Black;
-                    //             uncle.borrow_mut().color = NodeColor::Black;
-                    //             grandparent.borrow_mut().color = NodeColor::Red;
-                    //             Self::fix(&mut parent.borrow_mut().parent); // fix grand parent
-                    //         } else {
-                    //             // uncle is black
-                    //             // TODO: Rotation here depending on the case
-                    //         }
-                    //     } else {
-                    //         // uncle is black
-                    //         // TODO: Rotation here
-                    //     }
-                    // } else {
-                    //     println!("DEBUG MESSAGE: ERROR: I don't think this line should be printed. this means the the root node now has color red");
-                    // }
-                }
-            } else {
-                // we reached the root node, turn node to black
-                current.borrow_mut().color = NodeColor::Black;
-                return;
-            }
-        } else {
-            // nll node
-            return;
+        match self.root {
+            Some(current_node) => {
+                current_node.replace_with(|old|
+                match old {
+                    TreeNode{ color, key, parent: RedBlackTree {root: None}, left, right } => {
+                        TreeNode::new(12)
+                    },
+                    TreeNode{ color, key, parent: RedBlackTree {root: Some(x)}, left, right } => {
+                        x.replace_with(|par|
+                        match par {
+                            TreeNode{color: NodeColor::Black, key, parent, left, right }
+                        })
+                    },
+                });
+            },
+            None => todo!(),
         }
-        // get current node's uncle
 
-        // if if is red: recolor
-        // parent => black
-        // uncle => black
-        // grandparent => red
     }
 
     fn insert(self: &mut RedBlackTree, key: u32) {
