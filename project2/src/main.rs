@@ -298,6 +298,11 @@ fn main() {
     let mut tree = avl::AVLTree::new();
     tree.insert(10);
     tree.insert(5);
+    tree.insert(11);
+    tree.insert(12);
 
     println!("Tree: {:#?}", tree);
+    tree.delete(11);
+    println!("Tree: {:#?}", tree);
+
 }
