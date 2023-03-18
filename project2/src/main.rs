@@ -33,6 +33,14 @@ impl TreeNode {
             right: None,
         }
     }
+    // fn is_left_child(parent: &Rc<RefCell<TreeNode>>) -> bool {
+    //     match parent.as_ref().borrow().left {
+    //         Some(left) => {
+
+    //         }
+    //         None => false,
+    //     }
+    // }
 
     fn change_colour(node: &mut TreeNode, color: NodeColor) {
         node.color = color;
@@ -51,13 +59,29 @@ impl TreeNode {
                     // no fixing needed;
                     return;
                 } else {
-                    match &parent.as_ref().borrow().parent {
-                        Some(grandp) => {
+                    match parent.as_ref().borrow().parent {
+                        Some(ref grandp) => {
                             //check uncle.
-                            if parent.clone().as_ref().borrow().key
-                                > grandp.clone().as_ref().borrow().key
-                            {}
+                            // if parent.clone().as_ref().borrow().key
+                            //     > grandp.clone().as_ref().borrow().key
+                            // {}
+                            // if TreeNode::is_greater(grandp, parent.clone().as_ref().borrow().key) {}
                             // match &grandp.as_ref().borrow().parent
+                            match grandp.as_ref().borrow().left {
+                                Some(ref grandp) => {
+                                    //check uncle.
+                                    // if parent.clone().as_ref().borrow().key
+                                    //     > grandp.clone().as_ref().borrow().key
+                                    // // {}
+                                    // if TreeNode::is_greater(grandp, parent.clone().as_ref().borrow().key) {}
+                                    // // match &grandp.as_ref().borrow().parent
+                                    // match grandp.as_ref().borrow().parent
+                                }
+                                None => {
+                                    // child is the root node
+                                    child.as_ref().borrow_mut().color = NodeColor::Black;
+                                }
+                            }
                         }
                         None => {
                             // child is the root node
