@@ -44,120 +44,127 @@ impl TreeNode {
         false
     }
 
-    fn fix(node: &Rc<RefCell<TreeNode>>) {
-        
-            match node.as_ref().borrow().parent {
-                Some(ref parent) => {
-                    if parent.clone().as_ref().borrow().color == NodeColor::Black {
-                        return;
-                    } else {
-                        match &parent.as_ref().borrow().parent {
-                            Some(gp) => todo!(),
-                            None => {},
-                        } ;
-                    }
-                },
-                None => {
-                    println!("No parent")
-                },
+    fn fix(child: &Rc<RefCell<TreeNode>>) {
+        match child.as_ref().borrow().parent {
+            Some(ref parent) => {
+                if parent.clone().as_ref().borrow().color == NodeColor::Black {
+                    // no fixing needed;
+                    return;
+                } else {
+                    match &parent.as_ref().borrow().parent {
+                        Some(grandp) => {
+                            //check uncle.
+                            if parent.clone().as_ref().borrow().key
+                                > grandp.clone().as_ref().borrow().key
+                            {}
+                            // match &grandp.as_ref().borrow().parent
+                        }
+                        None => {
+                            // child is the root node
+                            child.as_ref().borrow_mut().color = NodeColor::Black;
+                        }
+                    };
+                }
+            }
+            None => {
+                println!("No parent")
             }
         }
-
+    }
 
     fn insert(node: &mut Option<Rc<RefCell<TreeNode>>>, key: u32) {
-        let new_leaf: Option<Rc<RefCell<TreeNode>>> =
-        {
-        let mut return_leaf: Option<Rc<RefCell<TreeNode>>> = None;
-        if let Some(current_node) = node {
-            println!("non-empty tree");
-            // compare with the tree root node with key
-            if TreeNode::is_greater(current_node, key) {
-                let mut tNode = current_node.borrow_mut();
-                if !tNode.right.is_none() {
-                    Self::insert(&mut tNode.right, key);
+        let new_leaf: Option<Rc<RefCell<TreeNode>>> = {
+            let mut return_leaf: Option<Rc<RefCell<TreeNode>>> = None;
+            if let Some(current_node) = node {
+                println!("non-empty tree");
+                // compare with the tree root node with key
+                if TreeNode::is_greater(current_node, key) {
+                    let mut tNode = current_node.borrow_mut();
+                    if !tNode.right.is_none() {
+                        Self::insert(&mut tNode.right, key);
+                    } else {
+                        println!("inserted right node");
+                        let mut new_node = TreeNode::new(key);
+                        new_node.parent = Some(current_node.clone());
+                        let new_leaf = Rc::new(RefCell::new(new_node));
+                        tNode.right = Some(new_leaf.clone());
+                        return_leaf = Some(new_leaf.clone());
+                        // Self::fix(&new_leaf);
+                    }
                 } else {
-                    println!("inserted right node");
-                    let mut new_node = TreeNode::new(key);
-                    new_node.parent = Some(current_node.clone());
-                    let new_leaf =Rc::new(RefCell::new(new_node));
-                    tNode.right = Some(new_leaf.clone());
-                    return_leaf = Some(new_leaf.clone());
-                    // Self::fix(&new_leaf);
+                    let mut tNode = current_node.borrow_mut();
+                    if !tNode.left.is_none() {
+                        Self::insert(&mut tNode.left, key);
+                    } else {
+                        println!("inserted left node");
+                        let mut new_node = TreeNode::new(key);
+                        new_node.parent = Some(current_node.clone());
+                        let new_leaf = Rc::new(RefCell::new(new_node));
+                        tNode.left = Some(new_leaf.clone());
+                        return_leaf = Some(new_leaf.clone());
+                        // Self::fix(&new_leaf);
+                    }
                 }
             } else {
-                let mut tNode = current_node.borrow_mut();
-                if !tNode.left.is_none() {
-                    Self::insert(&mut tNode.left, key);
+                return_leaf = None;
+            }
+            return_leaf
+        };
+        if let Some(leaf) = new_leaf {
+            println!("need fix");
+            Self::fix(&leaf);
+        }
+    }
+
+    fn print_tree(node: &Option<Rc<RefCell<TreeNode>>>) {
+        if let Some(current_node) = &node {
+            let current_key = current_node.as_ref().borrow().key;
+            let mut current_color = "";
+
+            if current_node.as_ref().borrow().color == NodeColor::Black {
+                current_color = "Black";
+            } else {
+                current_color = "Red";
+            }
+
+            println!("value:{}, color:{}", current_key, current_color);
+            if let Some(left_node) = &(*current_node).as_ref().borrow().left {
+                let left_key = left_node.as_ref().borrow().key;
+                let mut left_color = "";
+
+                if left_node.as_ref().borrow().color == NodeColor::Black {
+                    left_color = "Black";
                 } else {
-                    println!("inserted left node");
-                    let mut new_node = TreeNode::new(key);
-                    new_node.parent = Some(current_node.clone());
-                    let new_leaf =Rc::new(RefCell::new(new_node));
-                    tNode.left = Some(new_leaf.clone());
-                    return_leaf = Some(new_leaf.clone());
-                    // Self::fix(&new_leaf);
+                    left_color = "Red";
                 }
-                
+                println!(
+                    "{} left node:{} with color {}",
+                    current_key, left_key, left_color
+                );
+                Self::print_tree(&(*current_node).as_ref().borrow().left);
+            } else {
+                println!("{} left node is empty", current_key);
+            }
+            if let Some(right_node) = &(*current_node).as_ref().borrow().right {
+                let right_key = right_node.as_ref().borrow().key;
+                let mut right_color = "";
+
+                if right_node.as_ref().borrow().color == NodeColor::Black {
+                    right_color = "Black";
+                } else {
+                    right_color = "Red";
+                }
+                println!(
+                    "{} right node:{} with color {}",
+                    current_key, right_key, right_color
+                );
+                Self::print_tree(&(*current_node).as_ref().borrow().right);
+            } else {
+                println!("{} right node is empty", current_key);
             }
         } else {
-            println!("do nothing");
+            println!("empty node");
         }
-        return_leaf
-    };
-    if let Some(leaf) =  new_leaf {
-        Self::fix(&leaf);
-    }
-    }
-
-    fn print_tree(&self) {
-        // if let Some(current_node) = &self.root {
-        //     let current_key = current_node.borrow().key;
-        //     let mut current_color = "";
-
-        //     if current_node.borrow().color == NodeColor::Black {
-        //         current_color = "Black";
-        //     } else {
-        //         current_color = "Red";
-        //     }
-
-        //     println!("value:{}, color:{}", current_key, current_color);
-        //     if let Some(left_node) = &(*current_node).borrow().left.root {
-        //         let left_key = left_node.borrow().key;
-        //         let mut left_color = "";
-
-        //         if left_node.borrow().color == NodeColor::Black {
-        //             left_color = "Black";
-        //         } else {
-        //             left_color = "Red";
-        //         }
-        //         println!(
-        //             "{} left node:{} with color {}",
-        //             current_key, left_key, left_color
-        //         );
-        //         Self::print_tree(&(*current_node).borrow().left);
-        //     } else {
-        //         println!("{} left node is empty", current_key);
-        //     }
-        //     if let Some(right_node) = &(*current_node).borrow().right.root {
-        //         let right_key = right_node.borrow().key;
-        //         let mut right_color = "";
-
-        //         if right_node.borrow().color == NodeColor::Black {
-        //             right_color = "Black";
-        //         } else {
-        //             right_color = "Red";
-        //         }
-        //         println!(
-        //             "{} right node:{} with color{}",
-        //             current_key, right_key, right_color
-        //         );
-        //         Self::print_tree(&(*current_node).borrow().right);
-        //     } else {
-        //         println!("{} right node is empty", current_key);
-        //     }
-        // } else {
-        //     println!("empty node");
-        // }
     }
 }
 
@@ -172,6 +179,22 @@ impl RedBlackTree {
             };
         } else {
             return RedBlackTree { root: None };
+        }
+    }
+
+    fn tree_insert(&mut self, key: u32) {
+        if let Some(ref mut current_node) = self.root {
+            // have a node already
+            TreeNode::insert(&mut self.root, key);
+        } else {
+            // case x is the root
+            println!("insert root node!");
+            let mut new_node = TreeNode::new(key);
+            TreeNode::change_colour(&mut new_node, NodeColor::Black);
+            let rc = Rc::new(RefCell::new(new_node));
+            *self = RedBlackTree {
+                root: Some(rc.clone()),
+            };
         }
     }
 
@@ -193,29 +216,11 @@ fn main() {
     // (&mut tree).insert(0);
 
     // tree.print_tree();
-    let root_node = TreeNode::new(12);
-    TreeNode::insert(&mut Some(Rc::new(RefCell::new(root_node))), 13);
+    let mut tree = RedBlackTree::new();
+    RedBlackTree::tree_insert(&mut tree, 13);
+    RedBlackTree::tree_insert(&mut tree, 1);
+    RedBlackTree::tree_insert(&mut tree, 14);
+    RedBlackTree::tree_insert(&mut tree, 12);
 
-    // println!("{:#?}", *root_node);
-
-    // println!("12 1 {:#?}", tree);
-
-    // println!("12 1 13{:#?}", tree);*/
-
-    // let mut tree = avl::AVLTree::new();
-    // tree.insert(10);
-    // tree.insert(5);
-
-    // println!("Tree: {:#?}", tree);
-
-    let mut tree = avl::AVLTree::new();
-    tree.insert(10);
-    tree.insert(5);
-    tree.insert(11);
-    tree.insert(12);
-
-    println!("Tree: {:#?}", tree);
-    tree.delete(11);
-    println!("Tree: {:#?}", tree);
-
+    TreeNode::print_tree(&tree.root);
 }
