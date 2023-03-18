@@ -21,6 +21,7 @@ struct TreeNode {
     pub parent: Option<Rc<RefCell<TreeNode>>>,
     left: Option<Rc<RefCell<TreeNode>>>,
     right: Option<Rc<RefCell<TreeNode>>>,
+    height: i32,
 }
 
 impl TreeNode {
@@ -31,7 +32,21 @@ impl TreeNode {
             parent: None,
             left: None,
             right: None,
+            height: 1,
         }
+    }
+
+    fn height(node: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        node.as_ref().map_or(0, |n| n.as_ref().borrow().height)
+    }
+
+    fn update_height(node: &Option<Rc<RefCell<TreeNode>>>) {
+        // Check heights of left and right node, take the larger one and add 1.
+        let height = std::cmp::max(
+            Self::height(&node.as_ref().unwrap().as_ref().borrow().left),
+            Self::height(&node.as_ref().unwrap().as_ref().borrow().right),
+        ) + 1;
+        node.as_ref().unwrap().borrow_mut().height = height;
     }
     // fn is_left_child(parent: &Rc<RefCell<TreeNode>>) -> bool {
     //     match parent.as_ref().borrow().left {
@@ -67,21 +82,21 @@ impl TreeNode {
                             // {}
                             // if TreeNode::is_greater(grandp, parent.clone().as_ref().borrow().key) {}
                             // match &grandp.as_ref().borrow().parent
-                            match grandp.as_ref().borrow().left {
-                                Some(ref grandp) => {
-                                    //check uncle.
-                                    // if parent.clone().as_ref().borrow().key
-                                    //     > grandp.clone().as_ref().borrow().key
-                                    // // {}
-                                    // if TreeNode::is_greater(grandp, parent.clone().as_ref().borrow().key) {}
-                                    // // match &grandp.as_ref().borrow().parent
-                                    // match grandp.as_ref().borrow().parent
-                                }
-                                None => {
-                                    // child is the root node
-                                    child.as_ref().borrow_mut().color = NodeColor::Black;
-                                }
-                            }
+                            // match grandp.as_ref().borrow().left {
+                            //     Some(ref grandp) => {
+                            //         //check uncle.
+                            //         // if parent.clone().as_ref().borrow().key
+                            //         //     > grandp.clone().as_ref().borrow().key
+                            //         // // {}
+                            //         // if TreeNode::is_greater(grandp, parent.clone().as_ref().borrow().key) {}
+                            //         // // match &grandp.as_ref().borrow().parent
+                            //         // match grandp.as_ref().borrow().parent
+                            //     }
+                            //     None => {
+                            //         // child is the root node
+                            //         child.as_ref().borrow_mut().color = NodeColor::Black;
+                            //     }
+                            // }
                         }
                         None => {
                             // child is the root node
@@ -129,6 +144,12 @@ impl TreeNode {
                         // Self::fix(&new_leaf);
                     }
                 }
+
+                let height = std::cmp::max(
+                    Self::height(&current_node.as_ref().borrow().left),
+                    Self::height(&current_node.as_ref().borrow().right),
+                ) + 1;
+                current_node.borrow_mut().height = height;
             } else {
                 return_leaf = None;
             }
@@ -151,7 +172,12 @@ impl TreeNode {
                 current_color = "Red";
             }
 
-            println!("value:{}, color:{}", current_key, current_color);
+            println!(
+                "value:{}, color:{}, height:{}",
+                current_key,
+                current_color,
+                current_node.as_ref().borrow().height
+            );
             if let Some(left_node) = &(*current_node).as_ref().borrow().left {
                 let left_key = left_node.as_ref().borrow().key;
                 let mut left_color = "";
@@ -162,8 +188,11 @@ impl TreeNode {
                     left_color = "Red";
                 }
                 println!(
-                    "{} left node:{} with color {}",
-                    current_key, left_key, left_color
+                    "{} left node:{} with color {},with height{}",
+                    current_key,
+                    left_key,
+                    left_color,
+                    left_node.as_ref().borrow().height
                 );
                 Self::print_tree(&(*current_node).as_ref().borrow().left);
             } else {
@@ -242,9 +271,11 @@ fn main() {
     // tree.print_tree();
     let mut tree = RedBlackTree::new();
     RedBlackTree::tree_insert(&mut tree, 13);
+
     RedBlackTree::tree_insert(&mut tree, 1);
     RedBlackTree::tree_insert(&mut tree, 14);
-    RedBlackTree::tree_insert(&mut tree, 12);
+    RedBlackTree::tree_insert(&mut tree, 15);
+    RedBlackTree::tree_insert(&mut tree, 16);
 
     TreeNode::print_tree(&tree.root);
 }
