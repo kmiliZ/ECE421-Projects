@@ -1,14 +1,26 @@
 use text_io::read;
 
 mod avl;
-use std::borrow::Borrow;
 use std::cell::RefCell;
+use std::env;
+use std::process::Child;
 use std::rc::Rc;
 #[derive(Clone, Debug, PartialEq)]
 
 enum NodeColor {
     Red,
     Black,
+}
+
+enum FixMode {
+    RotationLeftLeft,
+    RotationLeftRight,
+    RotationRightRight,
+    RotationRightLeft,
+    RecolorRoot,
+    RecolorUncleRight,
+    RecolorUncleLeft,
+    None,
 }
 #[derive(Debug)]
 struct RedBlackTree {
@@ -48,17 +60,9 @@ impl TreeNode {
         ) + 1;
         node.as_ref().unwrap().borrow_mut().height = height;
     }
-    // fn is_left_child(parent: &Rc<RefCell<TreeNode>>) -> bool {
-    //     match parent.as_ref().borrow().left {
-    //         Some(left) => {
 
-    //         }
-    //         None => false,
-    //     }
-    // }
-
-    fn change_colour(node: &mut TreeNode, color: NodeColor) {
-        node.color = color;
+    fn change_colour(node: &Rc<RefCell<TreeNode>>, color: NodeColor) {
+        node.borrow_mut().color = color;
     }
     fn is_greater(node: &Rc<RefCell<TreeNode>>, z: u32) -> bool {
         if node.as_ref().borrow().key < z {
@@ -66,15 +70,14 @@ impl TreeNode {
         }
         false
     }
-
-    fn fix(child: &Rc<RefCell<TreeNode>>) {
+    fn fix_mode(child: &Rc<RefCell<TreeNode>>) -> FixMode {
         println!("Fixing");
         match child.as_ref().borrow().parent {
             Some(ref parent) => {
                 if parent.clone().as_ref().borrow().color == NodeColor::Black {
                     // no fixing needed;
                     println!("FIX DEBUG: node's parent is black, no fixing needed");
-                    return;
+                    return FixMode::None;
                 } else {
                     match parent.as_ref().borrow().parent {
                         Some(ref grandp) => {
@@ -90,13 +93,30 @@ impl TreeNode {
                                             // parent.as_ref().borrow_mut().color = NodeColor::Black;
                                             // uncle.as_ref().borrow_mut().color = NodeColor::Black;
                                             // grandp.as_ref().borrow_mut().color = NodeColor::Red;
-                                            Self::fix(grandp);
+                                            // Self::fix(grandp);
+                                            return FixMode::RecolorUncleLeft;
                                         } else {
                                             // rotate
+                                            if TreeNode::is_greater(
+                                                parent,
+                                                child.clone().as_ref().borrow().key,
+                                            ) {
+                                                return FixMode::RotationRightRight;
+                                            } else {
+                                                return FixMode::RotationRightLeft;
+                                            }
                                         }
                                     }
                                     None => {
                                         // rotate
+                                        if TreeNode::is_greater(
+                                            parent,
+                                            child.clone().as_ref().borrow().key,
+                                        ) {
+                                            return FixMode::RotationRightRight;
+                                        } else {
+                                            return FixMode::RotationRightLeft;
+                                        }
                                     }
                                 }
                             } else {
@@ -106,14 +126,29 @@ impl TreeNode {
                                     Some(ref uncle) => {
                                         if uncle.clone().as_ref().borrow().color == NodeColor::Red {
                                             // recolor;
-                                            // parent.as_ref().borrow_mut().color = NodeColor::Black;
-                                            // uncle.as_ref().borrow_mut().color = NodeColor::Black;
-                                            // grandp.as_ref().borrow_mut().color = NodeColor::Red;
-                                            Self::fix(grandp);
+                                            return FixMode::RecolorUncleRight;
+                                        } else {
+                                            // rotate
+                                            if TreeNode::is_greater(
+                                                parent,
+                                                child.clone().as_ref().borrow().key,
+                                            ) {
+                                                return FixMode::RotationLeftRight;
+                                            } else {
+                                                return FixMode::RotationLeftLeft;
+                                            }
                                         }
                                     }
                                     None => {
                                         // rotate
+                                        if TreeNode::is_greater(
+                                            parent,
+                                            child.clone().as_ref().borrow().key,
+                                        ) {
+                                            return FixMode::RotationLeftRight;
+                                        } else {
+                                            return FixMode::RotationLeftLeft;
+                                        }
                                     }
                                 }
                             }
@@ -126,10 +161,195 @@ impl TreeNode {
             }
             None => {
                 println!("FIX DEBUG: Child has no parent");
-                // child is the root node
-                child.as_ref().borrow_mut().color = NodeColor::Black;
-            } // case is it the root => update color
-              // case rotation: needs
+                return FixMode::RecolorRoot;
+            }
+        }
+        return FixMode::None;
+    }
+    fn is_greater_node(parent: &Rc<RefCell<TreeNode>>, child: &Rc<RefCell<TreeNode>>) -> bool {
+        if parent.as_ref().borrow().key < child.as_ref().borrow().key {
+            return true;
+        }
+        false
+    }
+    fn get_parent(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(parent) = &child.as_ref().borrow().parent {
+            return Some(Rc::clone(parent));
+        } else {
+            return None;
+        }
+    }
+
+    fn get_grandparent(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(gparent) = &child
+            .as_ref()
+            .borrow()
+            .parent
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .parent
+        {
+            return Some(Rc::clone(gparent));
+        } else {
+            return None;
+        }
+    }
+    fn get_greatgrandparent(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(ref ggparent) = Self::get_grandparent(child)
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .parent
+        {
+            return Some(Rc::clone(&ggparent));
+        } else {
+            return None;
+        }
+    }
+
+    fn get_leftchild(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(l) = &child.as_ref().borrow().left {
+            return Some(Rc::clone(l));
+        } else {
+            return None;
+        }
+    }
+
+    fn get_rightchild(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(r) = &child.as_ref().borrow().right {
+            return Some(Rc::clone(r));
+        } else {
+            return None;
+        }
+    }
+
+    fn ll_mutate_parent(child: &Rc<RefCell<TreeNode>>) {
+        if let Some(parent) = &child.as_ref().borrow().parent {
+            parent.borrow_mut().parent = Self::get_greatgrandparent(child);
+            parent.borrow_mut().right = Self::get_grandparent(child);
+        } else {
+            println!("RIGHT ROTATION DEBUG:P IS NULL");
+        }
+    }
+
+    fn ll_mutate_grandp(child: &Rc<RefCell<TreeNode>>) {
+        if let Some(gparent) = &child
+            .as_ref()
+            .borrow()
+            .parent
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .parent
+        {
+            gparent.borrow_mut().parent = Self::get_parent(child);
+            gparent.borrow_mut().left =
+                Self::get_rightchild(Self::get_parent(child).as_ref().unwrap());
+        } else {
+            println!("RIGHT ROTATION DEBUG:GP IS NULL");
+        }
+    }
+    fn ll_rotation(child: &Rc<RefCell<TreeNode>>) {
+        Self::ll_mutate_parent(child);
+        Self::ll_mutate_grandp(child);
+    }
+    fn rl_p_mutate_p(child: &Rc<RefCell<TreeNode>>) {
+        if let Some(parent) = &child.as_ref().borrow().parent {
+            parent.borrow_mut().parent = Some(Rc::clone(child));
+            parent.borrow_mut().left = Self::get_rightchild(child);
+        } else {
+            println!("RIGHT ROTATION DEBUG:P IS NULL");
+        }
+    }
+
+    fn rl_p_mutate_gp(child: &Rc<RefCell<TreeNode>>) {
+        if let Some(gparent) = &child
+            .as_ref()
+            .borrow()
+            .parent
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .parent
+        {
+            gparent.borrow_mut().right = Some(Rc::clone(child));
+        } else {
+            println!("RIGHT ROTATION DEBUG:GP IS NULL");
+        }
+    }
+
+    fn rl_p_mutate_child(child: &Rc<RefCell<TreeNode>>, gp: &Rc<RefCell<TreeNode>>) {
+        child.as_ref().borrow_mut().right = Self::get_parent(child);
+
+        child.as_ref().borrow_mut().parent = Some(Rc::clone(gp));
+    }
+
+    fn rl_p_rotation(child: &Rc<RefCell<TreeNode>>) {
+        let child_rc_1 = Rc::clone(child);
+        let parent_rc = Rc::clone(Self::get_grandparent(child).as_ref().unwrap());
+
+        Self::rl_p_mutate_gp(&child_rc_1);
+        let child_rc_2 = Rc::clone(child);
+
+        Self::rl_p_mutate_p(&child_rc_2);
+        let child_rc_3 = Rc::clone(child);
+        Self::rl_p_mutate_child(&child_rc_3, &parent_rc);
+
+        println!("right rotation");
+    }
+
+    fn fix(child: &Rc<RefCell<TreeNode>>) {
+        let mode = Self::fix_mode(child);
+        match mode {
+            FixMode::RotationLeftLeft => {
+                println!("          ROTATIONLEFTLEFT");
+                Self::ll_rotation(child);
+            }
+            FixMode::RotationLeftRight => {
+                println!("          ROTATION   LEFTRIGHT");
+                // Self::rl_p_rotation(child);
+            }
+            FixMode::RotationRightRight => {
+                println!("          ROTATION   RIGHTRIGHT");
+            }
+            FixMode::RotationRightLeft => {
+                println!("          ROTATION   RIGHTRLEFT");
+                // clone child,child's left parent, grandp 's RC pointer
+                // function(RC(child),RC(parent)) change child' right to parent, chanhe parent's parent to child. gp's child to child
+                Self::rl_p_rotation(child);
+            }
+            FixMode::RecolorRoot => {
+                println!("          RECOLOR:ROOT");
+                Self::change_colour(child, NodeColor::Black);
+            }
+            FixMode::RecolorUncleRight => {
+                println!("          RECOLORRight");
+                if let Some(parent) = &child.as_ref().borrow().parent {
+                    Self::change_colour(parent, NodeColor::Black);
+                    if let Some(grand_parent) = &parent.as_ref().borrow().parent {
+                        Self::change_colour(grand_parent, NodeColor::Red);
+                        if let Some(uncle) = &grand_parent.as_ref().borrow().right {
+                            Self::change_colour(uncle, NodeColor::Black);
+                        };
+                    };
+                };
+            }
+            FixMode::RecolorUncleLeft => {
+                println!("          RECOLORLeft");
+                if let Some(parent) = &child.as_ref().borrow().parent {
+                    Self::change_colour(parent, NodeColor::Black);
+                    if let Some(grand_parent) = &parent.as_ref().borrow().parent {
+                        Self::change_colour(grand_parent, NodeColor::Red);
+                        if let Some(uncle) = &grand_parent.as_ref().borrow().left {
+                            Self::change_colour(uncle, NodeColor::Black);
+                        };
+                    };
+                };
+            }
+            FixMode::None => {
+                println!("          NONE");
+            }
         }
     }
 
@@ -149,7 +369,6 @@ impl TreeNode {
                         let new_leaf = Rc::new(RefCell::new(new_node));
                         tNode.right = Some(new_leaf.clone());
                         return_leaf = Some(new_leaf.clone());
-                        // Self::fix(&new_leaf);
                     }
                 } else {
                     let mut tNode = current_node.borrow_mut();
@@ -162,7 +381,6 @@ impl TreeNode {
                         let new_leaf = Rc::new(RefCell::new(new_node));
                         tNode.left = Some(new_leaf.clone());
                         return_leaf = Some(new_leaf.clone());
-                        // Self::fix(&new_leaf);
                     }
                 }
 
@@ -185,10 +403,6 @@ impl TreeNode {
         match leaf_node {
             Some(child) => {
                 Self::fix(&child);
-                // println!(
-                //     "new_leaf node return with value:{}",
-                //     child.as_ref().borrow().key
-                // );
             }
             None => {
                 eprintln!("new_leaf node return with value: None");
@@ -273,14 +487,14 @@ impl RedBlackTree {
     fn tree_insert(&mut self, key: u32) {
         if let Some(ref mut current_node) = self.root {
             // have a node already
-            println!("insert another node!");
+            println!("insert another node with key:{}", key.clone());
 
             TreeNode::node_insert(&mut self.root, key);
         } else {
             // case x is the root
             println!("insert root node!");
             let mut new_node = TreeNode::new(key);
-            TreeNode::change_colour(&mut new_node, NodeColor::Black);
+            new_node.color = NodeColor::Black;
             let rc = Rc::new(RefCell::new(new_node));
             *self = RedBlackTree {
                 root: Some(rc.clone()),
@@ -293,35 +507,22 @@ impl RedBlackTree {
 }
 
 fn main() {
-    // let mut tree: RedBlackTree = RedBlackTree::new();
+    env::set_var("RUST_BACKTRACE", "1");
 
     // println!("do you want to insert?");
 
     // // let line: String = read!("{}\n");
     // // println!("{}", line);
-    // (&mut tree).insert(12);
-    // println!("tree after inserting 12: {:#?}", tree);
-    // (&mut tree).insert(1);
-    // (&mut tree).insert(13);
-    // (&mut tree).insert(0);
 
-    // tree.print_tree();
     let mut tree = RedBlackTree::new();
     println!("          Insert 13");
     RedBlackTree::tree_insert(&mut tree, 13);
     println!("          Insert 1");
 
-    RedBlackTree::tree_insert(&mut tree, 1);
     println!("          Insert 2");
 
-    RedBlackTree::tree_insert(&mut tree, 2);
-    RedBlackTree::tree_insert(&mut tree, 3);
-    RedBlackTree::tree_insert(&mut tree, 4);
-
-    println!("          Insert 15");
-
     RedBlackTree::tree_insert(&mut tree, 15);
-    RedBlackTree::tree_insert(&mut tree, 16);
+    RedBlackTree::tree_insert(&mut tree, 14);
 
-    // TreeNode::print_tree(&tree.root);
+    TreeNode::print_tree(&tree.root);
 }
