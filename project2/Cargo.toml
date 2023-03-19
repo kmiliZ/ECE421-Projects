@@ -7,3 +7,10 @@ edition = "2021"
 
 [dependencies]
 text_io = "0.1.12"
+
+[dev-dependencies]
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "my_benchmark"
+harness = false
