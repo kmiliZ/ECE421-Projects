@@ -21,23 +21,23 @@ impl<T> Node<T> {
     }
 }
 
-
+// Gets the height for the update_height function
 fn height<T>(node: &Option<Rc<RefCell<Node<T>>>>) -> i32 {
     node.as_ref().map_or(0, |n| n.borrow().height)
 }
 
+// Checks the balance of the nodes by left - right
 fn balance_factor<T>(node: &Option<Rc<RefCell<Node<T>>>>) -> i32 {
-    // Checks the balance of the nodes by left - right
     height(&node.as_ref().unwrap().borrow().left) - height(&node.as_ref().unwrap().borrow().right)
 }
 
+// Check heights of left and right node, take the larger one and adds 1.
 fn update_height<T>(node: &Option<Rc<RefCell<Node<T>>>>) {
-    // Check heights of left and right node, take the larger one and add 1.
     let height = std::cmp::max(height(&node.as_ref().unwrap().borrow().left), height(&node.as_ref().unwrap().borrow().right)) + 1;
     node.as_ref().unwrap().borrow_mut().height = height;
 }
 
-
+// Rotates the given node to the left
 fn rotate_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     // maps are used in case the value is none on the right side.
     let right = node.borrow().right.as_ref().unwrap().clone();
@@ -48,6 +48,7 @@ fn rotate_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     right
 }
 
+// Rotates the given node to the right
 fn rotate_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     // maps are used in case the value is none on the left side
     let left = node.borrow().left.as_ref().unwrap().clone();
@@ -57,7 +58,7 @@ fn rotate_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     update_height(&left.borrow().right);
     left
 }
-// This rotates the given node left and then right
+// Rotates the given node left and then right
 fn rotate_left_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     let left = node.borrow().left.as_ref().unwrap().clone();
     let new_left = rotate_left(left.clone());
@@ -65,7 +66,7 @@ fn rotate_left_right<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     rotate_right(node)
 }
 
-// This rotates the given node right and then left
+// Rotates the given node right and then left
 fn rotate_right_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
     let right = node.borrow().right.as_ref().unwrap().clone();
     let new_right = rotate_right(right.clone());
@@ -75,6 +76,7 @@ fn rotate_right_left<T>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
 
 // https://www.youtube.com/watch?v=vRwi_UcZGjU for explanation on rotation balance logic
 fn rebalance<T: Clone>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
+    // If the tree is unbalanced in one direction then rotatation will be used to self correct the AVL tree
     let balance = balance_factor(&Some(node.clone()));
     if balance > 1 {
         // When tree is right-heavy, perform left rotation then right rotation, otherwise just do a right rotation
@@ -86,7 +88,7 @@ fn rebalance<T: Clone>(node: Rc<RefCell<Node<T>>>) -> Rc<RefCell<Node<T>>> {
         }
 
     } else if balance < -1 {
-        // When tree is left-heavy, perform right rotation then left rotation
+        // When tree is left-heavy, perform right rotation then left rotation, otherwise just do a left rotation
         let right_balance = balance_factor(&node.borrow().right);
         if right_balance > 0 {
             rotate_right_left(node)
@@ -109,6 +111,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         AVLTree { root: None }
     }
 
+    // This is the insert function that main will call. If the root is none, then the node is created as the root
     pub fn insert(&mut self, data: T) {
         let node = Node::new(Some(data));
         self.root = match self.root.take() {
@@ -202,11 +205,12 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         rebalance(root)
     }
 
+    // This will be the function that main calls to delete a Node
     pub fn delete(&mut self, data: T) {
         let node = Node::new(Some(data));
         if let Some(root) = self.root.take() {
             let new_root = Self::delete_recursive(Rc::clone(&root), node);
-            // Deletes the root if the only value is None
+            // Deletes the root if the only value is None, this will happen if the root is the only node in the tree and wants to be deleted
             self.root = if new_root.borrow().data.is_some() {
                 Some(new_root)
             } else {
@@ -221,6 +225,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         // Check which side the deleted node is going to be on
         // Data is smaller than current node, so travers left
         if node_data < root_data {
+            // These will continuously traverse the tree if there continues to be children on the left, until the wanted data is found
             root.replace_with(|old| 
                 match old {
                     Node{data, height, left: Some(x), right: Some(y)} => {
@@ -281,7 +286,8 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
              rebalance(root.clone())
         // Data is larger than current node so traverse right
         } else if node_data > root_data {
-            root.replace_with(|old| 
+            root.replace_with(|old|
+                // These will continuously traverse the tree if there continues to be children on the right, until the wanted data is found
                 match old {
                     Node{data, height, left: Some(x), right: Some(y)} => {
                         let temp = Self::delete_recursive(y.clone(), node.clone());
@@ -343,12 +349,13 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         } else {
             // Node to be deleted found on the current node
             // Now have to replace the node with a new node
+            // The current node will be replaced with the lowest value node that is on the right side. Therefore find_min always looks at the right side of the Tree
+            // Note: Other versions of AVL tree will find the highest value node on the left side. The result may differ because of this
             let _ = &root.replace_with(|old| 
                 match old {
                     // Case 1: Node has no children
-                    // TODO: FIX CASE WHERE THERE IS NO CHILDREN WHEN DELETING
+                    // The data is set to None so that the parent can see its child has no value and delete it
                     Node{data, height, left: None, right: None} => {
-                        println!("NO CHILDREN");
                         Node {
                             data: None,
                             height: 0,
@@ -359,6 +366,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
                     // Case 2: Node has both left and right children
                     Node{data, height, left: Some(x), right: Some(y)} => {
                         let min = Self::find_min(Rc::clone(y));
+                        // If the child that is being taken has no children then copy the value and set child to None
                         if y.borrow().left.clone().is_none() && y.borrow().right.clone().is_none(){
                             let temp = Node {
                                 data: min.borrow().data.clone(),
@@ -366,6 +374,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
                                 left: Some(Rc::clone(x)),
                                 right: None,
                             }; temp
+                        // Otherwise, copy the value and delete the other child
                         } else {
                             let temp = Node {
                                 data: min.borrow().data.clone(),
@@ -373,13 +382,12 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
                                 left: Some(Rc::clone(x)),
                                 right: Some(Rc::clone(y)),
                             };
-                            Self::delete_recursive(x.clone(), min);
+                            Self::delete_recursive(y.clone(), min);
                             temp
                         }
                     },
                     // Case 3: Node has no left child
                     Node{data, height, left: None, right: Some(y)} => {
-                        println!("NO LEFT CHILD");
                         let min = Self::find_min(Rc::clone(y));
                         let result = Node {
                             data: min.borrow().data.clone(),
@@ -390,7 +398,6 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
                     },
                     // Case 4: Node has no right child
                     Node{data, height, left: Some(y), right: None} => {
-                        println!("NO RIGHT CHILD");
                         let min = Self::find_min(Rc::clone(y));
                         let result = Node {
                             data: min.borrow().data.clone(),
@@ -455,7 +462,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         }
     }
 
-    // This uses recursion to print out he in order traversal of the AVL tree by traversing through the tree to the left first, then the right
+    // Uses recursion to print out he in order traversal of the AVL tree by traversing through the tree to the left first, then the right
     fn in_order_traversal_recursive(node: Option<&Rc<RefCell<Node<T>>>>) {
         if let Some(n) = node {
             let node_borrow = n.borrow();
@@ -465,17 +472,22 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         }
     }
 
-    // This will be the fucntion that main calls to print the structure of the tree
+    // This will be the function that main calls to print the structure of the tree
     pub fn print_structure(&self) {
-        Self::print_node(&self.root, 0, "Root");
+        if let Some(n) = &self.root {
+            Self::print_node(&n.borrow().right,  0);
+            println!("{:?}", n.borrow().data.clone().unwrap());
+            Self::print_node(&n.borrow().left,  0);
+        }
     }
 
     // This uses preorder traversal to print out the tree with structure, where the height of the tree is the widge that is used to space out the strucutre. 
-    fn print_node(node: &Option<Rc<RefCell<Node<T>>>>, level: i32, direction: &str) {
+    fn print_node(node: &Option<Rc<RefCell<Node<T>>>>, node_height: i32) {
         if let Some(n) = node {
-            println!("{:>width$} {} {:?}", "", direction, n.borrow().data.clone().unwrap(), width = (level * 4) as usize);
-            Self::print_node(&n.borrow().left, level + 1, "Left");
-            Self::print_node(&n.borrow().right, level + 1, "Right");
+            Self::print_node(&n.borrow().right, node_height + 1);
+            println!("{:>width$}|-----{:?}", "", n.borrow().data.clone().unwrap(), width = ((node_height) * 8) as usize);
+            Self::print_node(&n.borrow().left, node_height + 1);
+            
         }
     }
 
