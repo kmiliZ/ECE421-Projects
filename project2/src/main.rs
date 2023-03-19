@@ -580,62 +580,26 @@ impl TreeNode {
         }
     }
 
-    fn print_tree(node: &Option<Rc<RefCell<TreeNode>>>) {
-        if let Some(current_node) = &node {
-            let current_key = current_node.as_ref().borrow().key;
-            let mut current_color = "";
-
-            if current_node.as_ref().borrow().color == NodeColor::Black {
-                current_color = "Black";
-            } else {
-                current_color = "Red";
-            }
-
-            println!(
-                "value:{}, color:{}, height:{}",
-                current_key,
-                current_color,
-                current_node.as_ref().borrow().height
-            );
-            if let Some(left_node) = &(*current_node).as_ref().borrow().left {
-                let left_key = left_node.as_ref().borrow().key;
-                let mut left_color = "";
-
-                if left_node.as_ref().borrow().color == NodeColor::Black {
-                    left_color = "Black";
-                } else {
-                    left_color = "Red";
-                }
-                println!(
-                    "{} left node:{} with color {},with height{}",
-                    current_key,
-                    left_key,
-                    left_color,
-                    left_node.as_ref().borrow().height
+    fn pretty_print(node: &Option<Rc<RefCell<TreeNode>>>, prefix: &str, is_left: bool) {
+        match node {
+            None => return,
+            Some(n) => {
+                let node_ref = n.borrow();
+                let color_str = match node_ref.color {
+                    NodeColor::Red => "R",
+                    NodeColor::Black => "B",
+                };
+                print!(
+                    "{}{}{}─",
+                    prefix,
+                    if is_left { "┌" } else { "└" },
+                    color_str
                 );
-                Self::print_tree(&(*current_node).as_ref().borrow().left);
-            } else {
-                println!("{} left node is empty", current_key);
+                println!("{}", node_ref.key);
+                let new_prefix = format!("{}{}", prefix, if is_left { "│ " } else { "  " });
+                Self::pretty_print(&node_ref.left, &new_prefix, true);
+                Self::pretty_print(&node_ref.right, &new_prefix, false);
             }
-            if let Some(right_node) = &(*current_node).as_ref().borrow().right {
-                let right_key = right_node.as_ref().borrow().key;
-                let mut right_color = "";
-
-                if right_node.as_ref().borrow().color == NodeColor::Black {
-                    right_color = "Black";
-                } else {
-                    right_color = "Red";
-                }
-                println!(
-                    "{} right node:{} with color {}",
-                    current_key, right_key, right_color
-                );
-                Self::print_tree(&(*current_node).as_ref().borrow().right);
-            } else {
-                println!("{} right node is empty", current_key);
-            }
-        } else {
-            println!("empty node");
         }
     }
 }
@@ -690,8 +654,6 @@ fn main() {
 
     // println!("          Insert 2");
 
-    RedBlackTree::tree_insert(&mut tree, 2);
-
     RedBlackTree::tree_insert(&mut tree, 3);
 
     RedBlackTree::tree_insert(&mut tree, 4);
@@ -700,9 +662,12 @@ fn main() {
 
     RedBlackTree::tree_insert(&mut tree, 6);
 
+    RedBlackTree::tree_insert(&mut tree, 7);
+    RedBlackTree::tree_insert(&mut tree, 0);
+    RedBlackTree::tree_insert(&mut tree, 2);
+
     // RedBlackTree::tree_insert(&mut tree, 15);
+    println!("++++++++++++++Pretty tree+++++++++");
 
-    println!("++++++++++++++Final Tree+++++++++");
-
-    TreeNode::print_tree(&tree.root);
+    TreeNode::pretty_print(&tree.root, "", false);
 }
