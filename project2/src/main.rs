@@ -618,7 +618,29 @@ impl RedBlackTree {
         }
     }
 
-    fn tree_insert(&mut self, key: u32) {
+    pub fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
+    pub fn count_leaves(&self) -> usize {
+        fn count_leaves_helper(node: &Option<Rc<RefCell<TreeNode>>>) -> usize {
+            match node {
+                None => 0,
+                Some(n) => {
+                    let node_borrow = n.borrow();
+                    if node_borrow.left.is_none() && node_borrow.right.is_none() {
+                        1
+                    } else {
+                        count_leaves_helper(&node_borrow.left)
+                            + count_leaves_helper(&node_borrow.right)
+                    }
+                }
+            }
+        }
+
+        count_leaves_helper(&self.root)
+    }
+
+    pub fn tree_insert(&mut self, key: u32) {
         if let Some(ref mut current_node) = self.root {
             // have a node already
             println!("insert another node with key:{}", key.clone());
@@ -636,8 +658,24 @@ impl RedBlackTree {
         }
     }
 
-    // fix should be called after we inserted a leaf node
-    // deal with the error
+    pub fn in_order_traversal(&self) {
+        if let Some(node) = &self.root {
+            let node_borrow = node.borrow();
+            Self::in_order_traversal_recursive(node_borrow.left.as_ref());
+            println!("{:?}", node_borrow.key);
+            Self::in_order_traversal_recursive(node_borrow.right.as_ref());
+        }
+    }
+
+    // Uses recursion to print out he in order traversal of the AVL tree by traversing through the tree to the left first, then the right
+    fn in_order_traversal_recursive(node: Option<&Rc<RefCell<TreeNode>>>) {
+        if let Some(n) = node {
+            let node_borrow = n.borrow();
+            Self::in_order_traversal_recursive(node_borrow.left.as_ref());
+            println!("{:?}", node_borrow.key);
+            Self::in_order_traversal_recursive(node_borrow.right.as_ref());
+        }
+    }
 }
 
 fn main() {
@@ -670,4 +708,7 @@ fn main() {
     println!("++++++++++++++Pretty tree+++++++++");
 
     TreeNode::pretty_print(&tree.root, "", false);
+    let num = RedBlackTree::count_leaves(&tree);
+    println!("number of leaves in the tree:{}", num);
+    RedBlackTree::in_order_traversal(&tree);
 }
