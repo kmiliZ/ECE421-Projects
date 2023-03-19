@@ -37,7 +37,8 @@ struct TreeNode {
 }
 
 impl TreeNode {
-    // ---------------------------------------- Generic Op -------------------------------------------
+
+// ---------------------------------------- Generic Op -------------------------------------------
     fn new(z: u32) -> Self {
         Self {
             color: NodeColor::Red,
@@ -96,12 +97,42 @@ impl TreeNode {
     fn is_red(node: &Rc<RefCell<TreeNode>>) -> bool {
         node.as_ref().borrow().color == NodeColor::Red
     }
-
+    fn is_black(node: &Rc<RefCell<TreeNode>>) -> bool {
+        node.as_ref().borrow().color == NodeColor::Black
+    }
     fn is_greater_node(parent: &Rc<RefCell<TreeNode>>, child: &Rc<RefCell<TreeNode>>) -> bool {
         if parent.as_ref().borrow().key < child.as_ref().borrow().key {
             return true;
         }
         false
+    }
+    // returns false if no parent or is right child
+    fn is_left_child(node: &Rc<RefCell<TreeNode>>) -> bool {
+        if let Some(parent) = Self::get_parent(node) {
+            return node.as_ref().borrow().key < parent.as_ref().borrow().key;
+        } else {
+            false
+        } 
+    }
+    
+    fn get_sibling(node: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(parent) = Self::get_parent(node) {
+            if Self::is_left_child(node) {
+                if let Some(sibling) = &parent.as_ref().borrow().right {
+                    return Some(sibling.clone());
+                } else {
+                    return None;
+                }
+            } else {
+                if let Some(sibling) = &parent.as_ref().borrow().left {
+                    return Some(sibling.clone());
+                } else {
+                    return None;
+                }
+            }
+        } else {
+            None
+        } 
     }
     fn get_parent(child: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
         if let Some(parent) = &child.as_ref().borrow().parent {
@@ -586,7 +617,7 @@ impl TreeNode {
         return new_leaf;
     }
 
-    fn node_insert(tree: &mut RedBlackTree, key: u32) {
+    pub fn node_insert(tree: &mut RedBlackTree, key: u32) {
         let ref mut node = tree.root;
         let leaf_node = Self::insert(node, key);
         match leaf_node {
@@ -640,17 +671,31 @@ impl TreeNode {
         None
     }
 
-    fn delete(node: &Option<Rc<RefCell<TreeNode>>>, key: u32) -> Option<Rc<RefCell<TreeNode>>> {
-        if let Some(delete_node) = Self::get(node, key) {
+    fn delete(delete_node: Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree, root_key: u32) {
             let u = Self::replace_node(&delete_node);
+            // let uvBlack = (u.is_none() || Self::is_black(u));
+            let parent = Self::get_parent(&delete_node);
 
-            if Self::is_red(&delete_node) {}
-            return None;
-        } else {
-            println!("Key not found D:");
-            return None;
-        }
-        None
+            // if Self::is_red(&delete_node) {
+
+            // }
+            if u.is_none() {
+                if Self::is_equal(&delete_node, root_key) {
+                    tree.root = None;
+                } else {
+                    if Self::is_black(&delete_node) {
+                        Self::fix_double_black(delete_node.clone());
+                    } else {
+                        if let 
+                    }
+                }
+                
+            }
+             
+    }
+
+    fn fix_double_black(node: Rc<RefCell<TreeNode>>) {
+
     }
 
     // ---------------------------------------- Print ------------------------------------------------
@@ -751,8 +796,28 @@ impl RedBlackTree {
         }
     }
 
-    fn get(&self, key: u32) -> Option<Rc<RefCell<TreeNode>>> {
+    pub fn get(&self, key: u32) -> Option<Rc<RefCell<TreeNode>>> {
         TreeNode::get(&self.root, key)
+    }
+
+    pub fn root_key(&self) -> Option<u32> {
+        if let Some(root) = self.root {
+            return Some(root.as_ref().borrow().key);
+        } else {
+            None
+        }
+    }
+    pub fn delete(&mut self, key: u32) {
+        if let Some(root) = &self.root {
+            if let Some(delete_node) = TreeNode::get(&self.root, key) {
+                let root_key = self.root_key().unwrap();
+                TreeNode::delete(delete_node, self, root_key);
+            } else {
+                println!("Node not found D:");
+            }
+        } else {
+            println!("Empty Tree D:");
+        }
     }
 
     // fix should be called after we inserted a leaf node
