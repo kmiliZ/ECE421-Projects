@@ -111,6 +111,28 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         AVLTree { root: None }
     }
 
+    pub fn contains(&self, data: T) -> bool {
+        let data_node = Node::new(Some(data));
+        Self::contains_recursive(&self.root, data_node)
+    }
+
+    fn contains_recursive(root: &Option<Rc<RefCell<Node<T>>>>, data1: Rc<RefCell<Node<T>>>) -> bool {
+        match root {
+            Some(node) => {
+                let node_data = node.borrow().data.clone();
+                let data_data = data1.borrow().data.clone();
+                if node_data == data_data {
+                    true
+                } else if node_data > data_data {
+                    Self::contains_recursive(&node.borrow().left, data1)
+                } else {
+                    Self::contains_recursive(&node.borrow().right, data1)
+                }
+            }
+            None => false,
+        }
+    }
+
     // This is the insert function that main will call. If the root is none, then the node is created as the root
     pub fn insert(&mut self, data: T) {
         let node = Node::new(Some(data));
@@ -485,7 +507,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
     fn print_node(node: &Option<Rc<RefCell<Node<T>>>>, node_height: i32) {
         if let Some(n) = node {
             Self::print_node(&n.borrow().right, node_height + 1);
-            println!("{:>width$}|-----{:?}", "", n.borrow().data.clone().unwrap(), width = ((node_height) * 8) as usize);
+            println!("{:>width$}|-----{:?}", "", n.borrow().data.clone().unwrap(), width = ((node_height) * 7) as usize);
             Self::print_node(&n.borrow().left, node_height + 1);
             
         }
