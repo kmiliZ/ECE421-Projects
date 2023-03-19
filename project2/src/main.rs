@@ -120,10 +120,18 @@ impl TreeNode {
     // returns false if no parent or is right child
     fn is_left_child(node: &Rc<RefCell<TreeNode>>) -> bool {
         if let Some(parent) = Self::get_parent(node) {
-            return node.as_ref().borrow().key < parent.as_ref().borrow().key;
+            if let Some(left) = &parent.as_ref().borrow().left {
+                return Rc::ptr_eq(&left.clone(), node)
+            } else {
+                return false;
+            };
         } else {
             false
         } 
+    }
+
+    fn has_only_child(node: &Rc<RefCell<TreeNode>>) -> bool {
+            return node.as_ref().borrow().left.is_some() ^ node.as_ref().borrow().right.is_some();
     }
     
     fn get_sibling(node: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
@@ -721,10 +729,33 @@ impl TreeNode {
                     if Self::is_black(&delete_node) {
                         Self::fix_double_black(delete_node.clone());
                     } else {
-                        if let 
+                        // sibling is not null, make it red"  *** Does not make sense to change sibling here
+                    }
+
+                    if Self::is_left_child(&delete_node) {
+                        if let Some(parent) = Self::get_parent(&delete_node) {
+                            parent.borrow_mut().left = None;
+                        };
+                    } else {
+                        if let Some(parent) = Self::get_parent(&delete_node) {
+                            parent.borrow_mut().right = None;
+                        };
                     }
                 }
-                
+                return
+            }
+
+            if Self::has_only_child(&delete_node) {
+                if Self::is_equal(&delete_node, root_key) {
+                    tree.root = u.clone();
+                    if let Some(replace_node) = &u {
+                        let mut temp = replace_node.borrow_mut();
+                        temp.parent = None;
+                        temp.color = NodeColor::Black;
+                    }
+                } else {
+
+                }
             }
              
     }
