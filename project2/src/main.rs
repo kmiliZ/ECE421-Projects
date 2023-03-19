@@ -70,6 +70,12 @@ impl TreeNode {
         }
         false
     }
+    fn is_equal(node: &Rc<RefCell<TreeNode>>, z: u32) -> bool {
+        if node.as_ref().borrow().key == z {
+            return true;
+        }
+        false
+    }
     fn fix_mode(child: &Rc<RefCell<TreeNode>>) -> FixMode {
         match child.as_ref().borrow().parent {
             Some(ref parent) => {
@@ -539,6 +545,9 @@ impl TreeNode {
                         tNode.right = Some(new_leaf.clone());
                         return_leaf = Some(new_leaf.clone());
                     }
+                } else if TreeNode::is_equal(current_node, key) {
+                    // duplicated value, do nothing
+                    return None;
                 } else {
                     let mut tNode = current_node.borrow_mut();
                     if !tNode.left.is_none() {
@@ -575,7 +584,8 @@ impl TreeNode {
                 Self::fix(&child, tree);
             }
             None => {
-                eprintln!("new_leaf node return with value: None");
+                println!("This key already exist");
+                // eprintln!("new_leaf node return with value: None");
             }
         }
     }
@@ -702,6 +712,7 @@ fn main() {
 
     RedBlackTree::tree_insert(&mut tree, 7);
     RedBlackTree::tree_insert(&mut tree, 0);
+    RedBlackTree::tree_insert(&mut tree, 2);
     RedBlackTree::tree_insert(&mut tree, 2);
 
     // RedBlackTree::tree_insert(&mut tree, 15);
