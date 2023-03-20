@@ -84,9 +84,7 @@ impl TreeNode {
         }
     }
 
-    fn change_colour(node: &Rc<RefCell<TreeNode>>, color: NodeColor) {
-        node.borrow_mut().color = color;
-    }
+
     fn is_greater(node: &Rc<RefCell<TreeNode>>, z: u32) -> bool {
         if node.as_ref().borrow().key < z {
             return true;
@@ -100,7 +98,18 @@ impl TreeNode {
         }
         false
     }
-
+    fn get_key(node: &Rc<RefCell<TreeNode>>) -> u32 {
+        return node.as_ref().borrow().key;
+    }
+    fn swap_key(node1: &Rc<RefCell<TreeNode>>, node2: &Rc<RefCell<TreeNode>>) {
+        let key1 = Self::get_key(node1);
+        let key2 = Self::get_key(node2);
+        node1.borrow_mut().key = key2;
+        node2.borrow_mut().key = key1;
+    }
+    fn change_colour(node: &Rc<RefCell<TreeNode>>, color: NodeColor) {
+        node.borrow_mut().color = color;
+    }
     fn get_color(node: &Rc<RefCell<TreeNode>>) -> NodeColor {
         return node.as_ref().borrow().color.clone();
     }
@@ -219,12 +228,12 @@ impl TreeNode {
         }
     }
 
-    // fn print_val(child: &Rc<RefCell<TreeNode>>) {
-    //     println!(
-    //         "======> fixing child with value : {}",
-    //         child.as_ref().borrow().key
-    //     );
-    // }
+    fn print_val(child: &Rc<RefCell<TreeNode>>) {
+        println!(
+            "======> fixing child with value : {}",
+            child.as_ref().borrow().key
+        );
+    }
 
     // fn print_val_op(child: &Option<Rc<RefCell<TreeNode>>>) {
     //     if let Some(node) = child {
@@ -531,8 +540,7 @@ impl TreeNode {
     }
 
     fn fix(child: &Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree) {
-        // Self::print_val(&Rc::clone(child));
-        println!("sdfhkjsdfhfix leaf node:{}", child.as_ref().borrow().key);
+        // println!("sdfhkjsdfhfix leaf node:{}", child.as_ref().borrow().key);
 
         let mode = Self::fix_mode(child);
         println!(
@@ -663,30 +671,30 @@ impl TreeNode {
             if let Some(current_node) = node {
                 // compare with the tree root node with key
                 if TreeNode::is_greater(current_node, key) {
-                    let mut tNode = current_node.borrow_mut();
-                    if !tNode.right.is_none() {
-                        return_leaf = Self::insert(&mut tNode.right, key);
+                    let mut t_node = current_node.borrow_mut();
+                    if !t_node.right.is_none() {
+                        return_leaf = Self::insert(&mut t_node.right, key);
                     } else {
                         // println!("inserted right node");
                         let mut new_node = TreeNode::new(key);
                         new_node.parent = Some(current_node.clone());
                         let new_leaf = Rc::new(RefCell::new(new_node));
-                        tNode.right = Some(new_leaf.clone());
+                        t_node.right = Some(new_leaf.clone());
                         return_leaf = Some(new_leaf.clone());
                     }
                 } else if TreeNode::is_equal(current_node, key) {
                     // duplicated value, do nothing
                     return None;
                 } else {
-                    let mut tNode = current_node.borrow_mut();
-                    if !tNode.left.is_none() {
-                        return_leaf = Self::insert(&mut tNode.left, key);
+                    let mut t_node = current_node.borrow_mut();
+                    if !t_node.left.is_none() {
+                        return_leaf = Self::insert(&mut t_node.left, key);
                     } else {
                         // println!("inserted left node");
                         let mut new_node = TreeNode::new(key);
                         new_node.parent = Some(current_node.clone());
                         let new_leaf = Rc::new(RefCell::new(new_node));
-                        tNode.left = Some(new_leaf.clone());
+                        t_node.left = Some(new_leaf.clone());
                         return_leaf = Some(new_leaf.clone());
                     }
                 }
@@ -749,10 +757,10 @@ impl TreeNode {
         Some(temp)
     }
     fn replace_node(node: &Rc<RefCell<TreeNode>>) -> Option<Rc<RefCell<TreeNode>>> {
-        if (node.as_ref().borrow().left.is_some() && node.as_ref().borrow().right.is_some()) {
+        if node.as_ref().borrow().left.is_some() && node.as_ref().borrow().right.is_some() {
             return Self::successor(&node.as_ref().borrow().right);
         }
-        if (node.as_ref().borrow().left.is_none() && node.as_ref().borrow().right.is_none()) {
+        if node.as_ref().borrow().left.is_none() && node.as_ref().borrow().right.is_none() {
             return None;
         }
 
@@ -761,17 +769,20 @@ impl TreeNode {
         } else {
             return Some(node.as_ref().borrow().right.as_ref().unwrap().clone());
         }
-        None
     }
 
     fn delete(delete_node: Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree, root_key: u32) {
-        let u = Self::replace_node(&delete_node);
-        // let uvBlack = (u.is_none() || Self::is_black(u));
-        let parent = Self::get_parent(&delete_node);
+            let u = Self::replace_node(&delete_node);
+            // let uvBlack = (u.is_none() || Self::is_black(u));
+            let parent = Self::get_parent(&delete_node);
+            
+            // // Debugging print
+            // if let Some(p) = &parent {
+            //     Self::print_val(&delete_node.as_ref().borrow().parent.as_ref().unwrap());
+            //     println!("******************************************parent db************************");
+            //     Self::print_val(p);
+            // }
 
-        // if Self::is_red(&delete_node) {
-
-        // }
         if u.is_none() {
             if Self::is_equal(&delete_node, root_key) {
                 tree.root = None;
@@ -804,7 +815,48 @@ impl TreeNode {
                     temp.color = NodeColor::Black;
                 }
             } else {
+                if Self::is_left_child(&delete_node) {
+                    if let Some(parent) = Self::get_parent(&delete_node) {
+                        if let Some(current_node) = &u {
+                            parent.borrow_mut().left = Some(current_node.clone());
+                            current_node.borrow_mut().parent = Some(parent.clone());
+                        }  
+                    }
+                } else {
+                    if let Some(parent) = Self::get_parent(&delete_node) {
+                        if let Some(current_node) = &u {
+                            parent.borrow_mut().right = Some(current_node.clone());
+                            current_node.borrow_mut().parent = Some(parent.clone());
+                        }  
+                    }
+                }
+
+                if Self::is_black(&u) && Self::is_black(&Some(delete_node.clone())) {
+                    if let Some(current_node) = &u {
+                        Self::fix_double_black(&Some(current_node.clone()));
+                    } 
+                } else {
+                    if let Some(current_node) = &u {
+                        current_node.borrow_mut().color = NodeColor::Black;
+                    } 
+                }
             }
+            return
+        }
+        if let Some(current_node) = &u {
+            // if let Some(temp) = Self::get_parent(current_node) {
+            //     Self::print_val(&temp);
+            // }
+            // if let Some(temp) = Self::get_parent(&delete_node) {
+            //     Self::print_val(&temp);
+            // }
+            Self::swap_key(&delete_node, current_node);
+            // println!("*********************delete node{}", Self::get_key(&delete_node));
+            // println!("*********************current node{}", Self::get_key(&current_node));
+            // if let Some(temp) = Self::get_parent(current_node) {
+            //     Self::print_val(&temp);
+            // }
+            Self::delete(current_node.clone(), tree, root_key)
         }
     }
     fn fix_double_black_helper(node: &Option<Rc<RefCell<TreeNode>>>) -> DoubleBlackFix {
@@ -853,6 +905,8 @@ impl TreeNode {
             println!("current node is nul");
             return DoubleBlackFix::Root;
         }
+
+        
     }
 
     fn fix_double_black(u: &Option<Rc<RefCell<TreeNode>>>) {
@@ -1119,7 +1173,13 @@ fn main() {
 
     // RedBlackTree::tree_insert(&mut tree, 15);
 
-    // TreeNode::pretty_print(&tree.root, "", false, true);
+
+    // RedBlackTree::tree_insert(&mut tree, 15);
+
+    // RedBlackTree::tree_insert(&mut tree, 15);
+    TreeNode::pretty_print(&tree.root, "", false, true);
+    tree.delete(20);
+    TreeNode::pretty_print(&tree.root, "", false, true);
     let num = RedBlackTree::count_leaves(&tree);
     println!("number of leaves in the tree:{}", num);
     RedBlackTree::in_order_traversal(&tree);
