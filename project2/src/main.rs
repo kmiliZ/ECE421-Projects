@@ -302,10 +302,6 @@ impl TreeNode {
         }
     }
     fn ll_rotation(child: &Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree) {
-        println!(
-            "LL rotation with child value{}",
-            child.as_ref().borrow().key
-        );
         let ggp_cp = Self::get_greatgrandparent(child);
         if let Some(ggp) = Self::get_greatgrandparent(child) {
             if let Some(gp) = Self::get_grandparent(child) {
@@ -314,22 +310,12 @@ impl TreeNode {
                 } else {
                     ggp.as_ref().borrow_mut().right = Self::get_parent(child);
                 }
-                println!(
-                    "LL rotation gtreat grand parents 's shoud have value{}",
-                    ggp.as_ref().borrow().key
-                );
             }
         } else {
             tree.root = Self::get_parent(child);
         }
-        println!("Tree during LL rotations");
-        Self::print_tree(&tree.root);
-        println!("===End");
 
         Self::ll_mutate_grandp(child);
-        println!("2. Tree during LL rotations");
-        Self::print_tree(&tree.root);
-        println!("===End");
         Self::ll_mutate_parent(child, ggp_cp);
         // also need to mutate greategrandparent
     }
@@ -467,14 +453,7 @@ impl TreeNode {
     }
 
     fn lr_rotation(child: &Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree) {
-        println!("+++++++++++++++++++++++++++++++++++beofre lr rotation");
-        Self::print_tree(&tree.root);
-        TreeNode::pretty_print(&tree.root, "", false, true);
-
         Self::lr_rotation_p(child);
-        println!("+++++++++++++++++++++++++++++++++++middle of lr rotation");
-        TreeNode::pretty_print(&tree.root, "", false, true);
-        Self::print_tree(&tree.root);
         Self::ll_rotation(Self::get_leftchild(child).as_ref().unwrap(), tree);
     }
     fn lr_rotation_p(child: &Rc<RefCell<TreeNode>>) {
@@ -585,13 +564,8 @@ impl TreeNode {
     }
 
     fn fix(child: &Rc<RefCell<TreeNode>>, tree: &mut RedBlackTree) {
-        // println!("sdfhkjsdfhfix leaf node:{}", child.as_ref().borrow().key);
-
         let mode = Self::fix_mode(child);
-        println!(
-            "after fix modefix leaf node:{}",
-            child.as_ref().borrow().key
-        );
+
         match mode {
             FixMode::RotationLeftLeft => {
                 println!("          ROTATION LL");
@@ -682,7 +656,6 @@ impl TreeNode {
                 } else {
                     eprintln!("Child should have grandp");
                 }
-                // recursive call on child's grand_parent
             }
             FixMode::RecolorUncleLeft => {
                 println!("          RECOLORLeft");
@@ -735,7 +708,6 @@ impl TreeNode {
                     if !t_node.left.is_none() {
                         return_leaf = Self::insert(&mut t_node.left, key);
                     } else {
-                        // println!("inserted left node");
                         let mut new_node = TreeNode::new(key);
                         new_node.parent = Some(current_node.clone());
                         let new_leaf = Rc::new(RefCell::new(new_node));
@@ -837,10 +809,12 @@ impl TreeNode {
                 if Self::is_left_child(&delete_node) {
                     if let Some(parent) = Self::get_parent(&delete_node) {
                         parent.borrow_mut().left = None;
+                        Self::recursive_update_height(&parent);
                     };
                 } else {
                     if let Some(parent) = Self::get_parent(&delete_node) {
                         parent.borrow_mut().right = None;
+                        Self::recursive_update_height(&parent);
                     };
                 }
             }
@@ -854,6 +828,7 @@ impl TreeNode {
                     let mut temp = replace_node.borrow_mut();
                     temp.parent = None;
                     temp.color = NodeColor::Black;
+                    // no update height needed
                 }
             } else {
                 if Self::is_left_child(&delete_node) {
@@ -861,6 +836,7 @@ impl TreeNode {
                         if let Some(current_node) = &u {
                             parent.borrow_mut().left = Some(current_node.clone());
                             current_node.borrow_mut().parent = Some(parent.clone());
+                            Self::recursive_update_height(&parent);
                         }
                     }
                 } else {
@@ -868,6 +844,7 @@ impl TreeNode {
                         if let Some(current_node) = &u {
                             parent.borrow_mut().right = Some(current_node.clone());
                             current_node.borrow_mut().parent = Some(parent.clone());
+                            Self::recursive_update_height(&parent);
                         }
                     }
                 }
@@ -955,22 +932,21 @@ impl TreeNode {
                 if let Some(child) = u {
                     if let Some(sb) = Self::get_sibling(child) {
                         if let Some(sb_left_child) = Self::get_sib_left_child(u) {
-                            // sibling.lef,color = sibling.color
+                            // sibling.left.color = sibling.color
                             sb_left_child.as_ref().borrow_mut().color =
                                 sb.as_ref().borrow().color.clone();
                         }
                         if let Some(p) = Self::get_parent(child) {
-                            // sibling.color = parent.color
                             sb.as_ref().borrow_mut().color = p.as_ref().borrow().color.clone();
                         }
                     }
                     if let Some(p) = Self::get_parent(child) {
-                        // sibling.color = parent.color
                         p.as_ref().borrow_mut().color = NodeColor::Black;
                     }
                 }
                 if let Some(sb_left_child) = Self::get_sib_left_child(u) {
                     Self::ll_rotation(&sb_left_child, tree);
+                    Self::recursive_update_height(&sb_left_child);
                 }
             }
             DoubleBlackFix::BlackSiblrRotation => {
@@ -991,7 +967,15 @@ impl TreeNode {
                     }
                 }
                 if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                    let p_cpy = Self::get_parent(&sb_right_child);
+                    let gp_cpy = Self::get_grandparent(&sb_right_child);
                     Self::lr_rotation(&sb_right_child, tree);
+                    if let Some(gp) = gp_cpy {
+                        Self::update_height(&gp);
+                    }
+                    if let Some(p) = p_cpy {
+                        Self::recursive_update_height(&p);
+                    }
                 }
             }
             DoubleBlackFix::BlackSibrrRotation => {
@@ -1015,6 +999,7 @@ impl TreeNode {
                 }
                 if let Some(sb_right_child) = Self::get_sib_right_child(u) {
                     Self::rr_rotation(&sb_right_child, tree);
+                    Self::recursive_update_height(&sb_right_child);
                 }
             }
             DoubleBlackFix::BlackSibrlRotation => {
@@ -1035,7 +1020,15 @@ impl TreeNode {
                     }
                 }
                 if let Some(sb_left_child) = Self::get_sib_left_child(u) {
+                    let p_cpy = Self::get_parent(&sb_left_child);
+                    let gp_cpy = Self::get_grandparent(&sb_left_child);
                     Self::rl_rotation(&sb_left_child, tree);
+                    if let Some(gp) = gp_cpy {
+                        Self::update_height(&gp);
+                    }
+                    if let Some(p) = p_cpy {
+                        Self::recursive_update_height(&p);
+                    }
                 }
             }
             DoubleBlackFix::BlackSibRecolor => {
@@ -1326,8 +1319,9 @@ fn main() {
 
     // RedBlackTree::tree_insert(&mut tree, 15);
     TreeNode::pretty_print(&tree.root, "", false, true);
-    tree.delete(31);
     println!("Tree after deletion");
+
+    tree.delete(19);
     TreeNode::pretty_print(&tree.root, "", false, true);
     let num = RedBlackTree::count_leaves(&tree);
     println!("number of leaves in the tree:{}", num);
