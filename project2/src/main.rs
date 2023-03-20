@@ -1042,17 +1042,13 @@ impl TreeNode {
                 println!("=====>BlackSibRecolor");
                 if let Some(child) = u {
                     if let Some(sib) = Self::get_sibling(child) {
-                        sib.as_ref().borrow_mut().color == NodeColor::Red;
+                        sib.as_ref().borrow_mut().color = NodeColor::Red;
                         if Self::is_black(&Self::get_parent(child)) {
                             Self::fix_double_black(&Self::get_parent(child), tree);
                         } else {
                             Self::get_parent(child).as_ref().unwrap().borrow_mut().color =
                                 NodeColor::Black;
                         }
-                    }
-                    if let Some(p) = Self::get_parent(child) {
-                        // sibling.color = parent.color
-                        p.as_ref().borrow_mut().color = NodeColor::Black;
                     }
                 }
             }
@@ -1330,7 +1326,8 @@ fn main() {
 
     // RedBlackTree::tree_insert(&mut tree, 15);
     TreeNode::pretty_print(&tree.root, "", false, true);
-    tree.delete(20);
+    tree.delete(31);
+    println!("Tree after deletion");
     TreeNode::pretty_print(&tree.root, "", false, true);
     let num = RedBlackTree::count_leaves(&tree);
     println!("number of leaves in the tree:{}", num);
@@ -1338,7 +1335,7 @@ fn main() {
     tree.get(2);
     println!("tree with height:{}", TreeNode::height(&tree.root));
 
-    TreeNode::print_tree(&tree.root);
+    // TreeNode::print_tree(&tree.root);
     // RedBlackTree::tree_insert(&mut tree, 37);
     // RedBlackTree::tree_insert(&mut tree, 39);
 
