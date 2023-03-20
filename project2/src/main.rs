@@ -19,6 +19,7 @@ enum DoubleBlackFix {
     BlackSibRecolor,
     RedSibLeft,
     RedSibRight,
+    NullSib,
     Root,
     None,
 }
@@ -765,10 +766,6 @@ impl TreeNode {
                 println!("inserted leaf node:{}", child.as_ref().borrow().key);
 
                 Self::fix(&child, tree);
-                if key.clone() == 40 {
-                    println!("fix double black tree! on key{}", key.clone());
-                    TreeNode::fix_double_black(&Self::get_parent(&child), tree);
-                }
             }
             None => {
                 println!("This key already exist");
@@ -943,7 +940,7 @@ impl TreeNode {
             } else {
                 // sib is black
                 println!("sib is null");
-                return DoubleBlackFix::None;
+                return DoubleBlackFix::NullSib;
             }
         } else {
             println!("current node is nul");
@@ -955,15 +952,91 @@ impl TreeNode {
         match Self::fix_double_black_helper(u) {
             DoubleBlackFix::BlackSibllRotation => {
                 println!("=====>BalckSibllRotation");
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        if let Some(sb_left_child) = Self::get_sib_left_child(u) {
+                            // sibling.lef,color = sibling.color
+                            sb_left_child.as_ref().borrow_mut().color =
+                                sb.as_ref().borrow().color.clone();
+                        }
+                        if let Some(p) = Self::get_parent(child) {
+                            // sibling.color = parent.color
+                            sb.as_ref().borrow_mut().color = p.as_ref().borrow().color.clone();
+                        }
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        // sibling.color = parent.color
+                        p.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                }
+                if let Some(sb_left_child) = Self::get_sib_left_child(u) {
+                    Self::ll_rotation(&sb_left_child, tree);
+                }
             }
             DoubleBlackFix::BlackSiblrRotation => {
                 println!("=====>BlackSiblrRotation");
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                            if let Some(p) = Self::get_parent(child) {
+                                // siblin.left.color = parent.color
+                                sb_right_child.as_ref().borrow_mut().color =
+                                    p.as_ref().borrow().color.clone();
+                            }
+                        }
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        // sibling.color = parent.color
+                        p.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                }
+                if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                    Self::lr_rotation(&sb_right_child, tree);
+                }
             }
             DoubleBlackFix::BlackSibrrRotation => {
                 println!("=====>BlackSibrrRotation");
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                            // sibling.right,color = sibling.color
+                            sb_right_child.as_ref().borrow_mut().color =
+                                sb.as_ref().borrow().color.clone();
+                        }
+                        if let Some(p) = Self::get_parent(child) {
+                            // sibling.color = parent.color
+                            sb.as_ref().borrow_mut().color = p.as_ref().borrow().color.clone();
+                        }
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        // sibling.color = parent.color
+                        p.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                }
+                if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                    Self::rr_rotation(&sb_right_child, tree);
+                }
             }
             DoubleBlackFix::BlackSibrlRotation => {
                 println!("=====>BlackSibrlRotation");
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        if let Some(sb_left_child) = Self::get_sib_left_child(u) {
+                            if let Some(p) = Self::get_parent(child) {
+                                // siblin.left.color = parent.color
+                                sb_left_child.as_ref().borrow_mut().color =
+                                    p.as_ref().borrow().color.clone();
+                            }
+                        }
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        // sibling.color = parent.color
+                        p.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                }
+                if let Some(sb_left_child) = Self::get_sib_left_child(u) {
+                    Self::rl_rotation(&sb_left_child, tree);
+                }
             }
             DoubleBlackFix::BlackSibRecolor => {
                 println!("=====>BlackSibRecolor");
@@ -977,15 +1050,48 @@ impl TreeNode {
                                 NodeColor::Black;
                         }
                     }
+                    if let Some(p) = Self::get_parent(child) {
+                        // sibling.color = parent.color
+                        p.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
                 }
             }
-            DoubleBlackFix::RedSibLeft => {}
+            DoubleBlackFix::RedSibLeft => {
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        sb.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        p.as_ref().borrow_mut().color = NodeColor::Red;
+                    }
+                }
+                if let Some(sb_right_child) = Self::get_sib_left_child(u) {
+                    Self::ll_rotation(&sb_right_child, tree);
+                }
+                Self::fix_double_black(u, tree)
+            }
             DoubleBlackFix::RedSibRight => {
+                if let Some(child) = u {
+                    if let Some(sb) = Self::get_sibling(child) {
+                        sb.as_ref().borrow_mut().color = NodeColor::Black;
+                    }
+                    if let Some(p) = Self::get_parent(child) {
+                        p.as_ref().borrow_mut().color = NodeColor::Red;
+                    }
+                }
 
-                // Self::rr_rotation(child, tree);
+                if let Some(sb_right_child) = Self::get_sib_right_child(u) {
+                    Self::rr_rotation(&sb_right_child, tree);
+                }
+                Self::fix_double_black(u, tree)
             }
             DoubleBlackFix::Root => {}
             DoubleBlackFix::None => {}
+            DoubleBlackFix::NullSib => {
+                if let Some(child) = u {
+                    Self::fix_double_black(&Self::get_parent(child), tree)
+                }
+            }
         }
     }
 
