@@ -524,5 +524,5 @@ fn main(){
     tree.insert(3);
     tree.insert(2);
 
-    println!("Tree: {:#?}", tree);
+    println!("{:#?}", tree);
 }
