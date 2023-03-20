@@ -817,12 +817,12 @@ impl TreeNode {
         // let uvBlack = (u.is_none() || Self::is_black(u));
         let parent = Self::get_parent(&delete_node);
 
-        // // Debugging print
-        // if let Some(p) = &parent {
-        //     Self::print_val(&delete_node.as_ref().borrow().parent.as_ref().unwrap());
-        //     println!("******************************************parent db************************");
-        //     Self::print_val(p);
-        // }
+        // Debugging print
+        if let Some(p) = &parent {
+            Self::print_val(&delete_node.as_ref().borrow().parent.as_ref().unwrap());
+            println!("******************************************parent db************************");
+            Self::print_val(p);
+        }
 
         if u.is_none() {
             if Self::is_equal(&delete_node, root_key) {
@@ -830,6 +830,11 @@ impl TreeNode {
             } else {
                 if !Self::is_red(Rc::clone(&delete_node)) {
                     Self::fix_double_black(&Some(Rc::clone(&delete_node)), tree);
+
+                    // Debugging print
+                    println!("******************************************fix double black************************");
+                    TreeNode::pretty_print(&tree.root, "", false, true);
+
                 } else {
                     // sibling is not null, make it red"  *** Does not make sense to change sibling here
                 }
@@ -885,19 +890,12 @@ impl TreeNode {
             return;
         }
         if let Some(current_node) = &u {
-            // if let Some(temp) = Self::get_parent(current_node) {
-            //     Self::print_val(&temp);
-            // }
-            // if let Some(temp) = Self::get_parent(&delete_node) {
-            //     Self::print_val(&temp);
-            // }
+            let mut key = root_key;
+            if Self::get_key(&delete_node) == root_key {
+                key = Self::get_key(current_node)
+            }            
             Self::swap_key(&delete_node, current_node);
-            // println!("*********************delete node{}", Self::get_key(&delete_node));
-            // println!("*********************current node{}", Self::get_key(&current_node));
-            // if let Some(temp) = Self::get_parent(current_node) {
-            //     Self::print_val(&temp);
-            // }
-            Self::delete(current_node.clone(), tree, root_key)
+            Self::delete(current_node.clone(), tree, key)
         }
     }
     fn fix_double_black_helper(node: &Option<Rc<RefCell<TreeNode>>>) -> DoubleBlackFix {
@@ -1315,10 +1313,10 @@ fn main() {
     RedBlackTree::tree_insert(&mut tree, 30);
     RedBlackTree::tree_insert(&mut tree, 31);
     RedBlackTree::tree_insert(&mut tree, 21);
-    // RedBlackTree::tree_insert(&mut tree, 37);
-    // RedBlackTree::tree_insert(&mut tree, 39);
+    RedBlackTree::tree_insert(&mut tree, 37);
+    RedBlackTree::tree_insert(&mut tree, 39);
 
-    // RedBlackTree::tree_insert(&mut tree, 40);
+    RedBlackTree::tree_insert(&mut tree, 40);
 
     // RedBlackTree::tree_insert(&mut tree, 15);
 
@@ -1326,7 +1324,7 @@ fn main() {
 
     // RedBlackTree::tree_insert(&mut tree, 15);
     TreeNode::pretty_print(&tree.root, "", false, true);
-    tree.delete(31);
+    tree.delete(30);
     println!("Tree after deletion");
     TreeNode::pretty_print(&tree.root, "", false, true);
     let num = RedBlackTree::count_leaves(&tree);
