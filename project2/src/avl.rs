@@ -479,7 +479,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         if let Some(node) = &self.root {
             let node_borrow = node.borrow();
             Self::in_order_traversal_recursive(node_borrow.left.as_ref());
-            println!("{:?}", node_borrow.data);
+            println!("{:?}", node_borrow.data.clone().unwrap());
             Self::in_order_traversal_recursive(node_borrow.right.as_ref());
         }
     }
@@ -489,7 +489,7 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
         if let Some(n) = node {
             let node_borrow = n.borrow();
             Self::in_order_traversal_recursive(node_borrow.left.as_ref());
-            println!("{:?}", node_borrow.data);
+            println!("{:?}", node_borrow.data.clone().unwrap());
             Self::in_order_traversal_recursive(node_borrow.right.as_ref());
         }
     }
@@ -517,12 +517,4 @@ impl<T: std::cmp::Ord + Clone + Default + std::fmt::Debug> AVLTree<T> {
 
 
 fn main(){
-	let mut tree = AVLTree::new();
-    tree.insert(10);
-    tree.insert(5);
-    tree.insert(4);
-    tree.insert(3);
-    tree.insert(2);
-
-    println!("{:#?}", tree);
 }

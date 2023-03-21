@@ -65,8 +65,13 @@ fn avlTree() {
                 };
 
                 // Delete the value from the AVL tree
-                tree.delete(value);
-                println!("{} deleted from tree", value);
+                if tree.contains(value){
+                    tree.delete(value);
+                    println!("{} deleted from tree", value);
+                } else {
+                    println!("{} does not exist in tree", value);
+                }
+                
             }
             3 => {
                 // Count the number of leaves in the AVL tree
