@@ -16,6 +16,11 @@ a {
   margin: 10px 0 10px 0;
 }
 
+.column {
+  float: left;
+  width: 50%;
+}
+
 .post {
   padding: 10px;
   margin-bottom: 5px;

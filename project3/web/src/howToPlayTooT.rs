@@ -1,12 +1,12 @@
 use yew::prelude::*;
 
-pub struct HowToToot;
+pub struct HowToPlayToot;
 
-impl Component for HowToToot {
+impl Component for HowToPlayToot {
     type Message = ();
     type Properties = ();
     fn create(_ctx: &Context<Self>) -> Self {
-        HowToToot
+        HowToPlayToot
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {

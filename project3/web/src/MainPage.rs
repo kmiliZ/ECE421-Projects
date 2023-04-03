@@ -11,8 +11,8 @@ impl Component for MainPage {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div>
-            <form ng-submit="Game()">
-                <div class="w3-container" id="services" style="margin-top:75px">
+            <form >
+                <div id="services" style="margin-top:75px">
                 <h5 class="w3-xxxlarge w3-text-red">
                 <b>{"Welcome!"}</b>
                 </h5>
