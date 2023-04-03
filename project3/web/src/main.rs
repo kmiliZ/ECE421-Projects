@@ -6,10 +6,10 @@ use yew_router::prelude::*;
 // mod connect4_computer;
 // mod connect_4;
 mod MainPage;
-mod game_history;
+// mod game_history;
 mod howToPlayConnect4;
 mod howToPlayTOOT;
-mod scoreboard;
+// mod scoreboard;
 // mod toot_otto;
 // mod toot_otto_computer;
 use yew::html::Scope;
@@ -125,10 +125,10 @@ fn switch(routes: &Route) -> Html {
             // <toot_otto_computer::toot_otto_computer />
         },
         Route::game_history => html! {
-            <game_history::game_history />
+            // <game_history::game_history />
         },
         Route::scoreboard => html! {
-            <scoreboard::ScoreBoard />
+            // <scoreboard::ScoreBoard />
         },
         Route::howToPlayTOOT => html! {
             <howToPlayTOOT::HowToToot />
