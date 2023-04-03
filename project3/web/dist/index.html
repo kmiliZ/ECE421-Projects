@@ -1,12 +1,16 @@
-<!DOCTYPE html><html><head>
-    <meta charset="utf-8">
-    <title>Connect4App</title>
-    <link rel="stylesheet" href="/style-5424028744d4e3eb.css">
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <title>connect4</title>
+  <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="/styles-114f51f8fd561727.css">
 
-<link rel="preload" href="/web-dfcc33785dc2b37c_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/web-dfcc33785dc2b37c.js"></head>
+<link rel="preload" href="/frontend-da384fd0128a24a9_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/frontend-da384fd0128a24a9.js"></head>
 
-<body><script type="module">import init from '/web-dfcc33785dc2b37c.js';init('/web-dfcc33785dc2b37c_bg.wasm');</script><script>(function () {
+<body>
+
+<script type="module">import init from '/frontend-da384fd0128a24a9.js';init('/frontend-da384fd0128a24a9_bg.wasm');</script><script>(function () {
     var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     var url = protocol + '//' + window.location.host + '/_trunk/ws';
     var poll_interval = 5000;
