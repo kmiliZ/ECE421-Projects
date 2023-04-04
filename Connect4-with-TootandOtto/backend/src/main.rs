@@ -1,12 +1,10 @@
 mod connect4;
 mod toot_and_otto;
-use connect4::ROWS;
-use connect4::COLS;
 use std::io;
 
 fn connect4_2_player(){
     use std::io::{stdin,stdout,Write};
-    let mut board = connect4::Board::new("p1".to_string(), "p2".to_string(), 0, false);
+    let mut board = connect4::Board::new("p1".to_string(), "p2".to_string(), 0, false, 6, 7);
 
     while !board.game_over {
         board.display();
@@ -22,16 +20,11 @@ fn connect4_2_player(){
             Err(_) => continue,
         };
 
-        if col < 1 || col > COLS {
+        if col < 1 || col > board.cols.try_into().unwrap() {
             continue;
         }
 
-        let mut row = ROWS - 1;
-        while row > 0 && board.grid[row][col - 1] != ' ' {
-            row -= 1;
-        }
-
-        board.grid[row][col - 1] = board.current_turn;
+        board.grid.insert_chip(col - 1, board.current_turn);
 
         if board.check_win() {
             println!("{} wins!", board.current_turn);
