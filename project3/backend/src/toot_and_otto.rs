@@ -14,7 +14,7 @@ impl Board {
     pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
-            current_turn: player1_name,
+            current_turn: 'T',
             game_over: false,
             player1: player1_name,
             player2: player2_name,
