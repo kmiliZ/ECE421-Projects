@@ -2,32 +2,46 @@ mod connect4;
 mod toot_and_otto;
 use std::io;
 
-fn connect4_2_player(){
+fn connect4_2_player(player1_name: String, player2_name: String){
     use std::io::{stdin,stdout,Write};
-    let mut board = connect4::Board::new("p1".to_string(), "p2".to_string(), 0, false, 6, 7);
+    let mut board = connect4::Board::new(player1_name, player2_name, 0, false, 6, 7);
 
     while !board.game_over {
         board.display();
 
-        println!("{}'s turn", board.current_turn);
+        if board.current_turn == 'X'{
+            println!("{}'s turn", board.player1);
+        } else {
+            println!("{}'s turn", board.player2);
+        }
         println!("Enter column (1-7): ");
 
-        let mut col = String::new();
-        stdin().read_line(&mut col).expect("Did not enter a correct string");
+        while true {
+            let mut col = String::new();
+            stdin().read_line(&mut col).expect("Did not enter a correct string");
 
-        let col: usize = match col.trim().parse() {
-            Ok(num) => num,
-            Err(_) => continue,
-        };
+            let col: usize = match col.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("Invalid input, please enter a number");
+                    continue;
+                }
+            };
 
-        if col < 1 || col > board.cols.try_into().unwrap() {
-            continue;
+            if col < 1 || col > board.cols.try_into().unwrap() {
+                println!("Please enter a number less than {}", board.cols);
+                continue;
+            }
+
+            if board.grid.insert_chip(col - 1, board.current_turn){
+                break;
+            };
+            println!("That column is full");
         }
 
-        board.grid.insert_chip(col - 1, board.current_turn);
-
         if board.check_win() {
-            println!("{} wins!", board.current_turn);
+            println!("{} wins", board.winner);
+            
             board.display();
             board.game_over = true;
         } else {
@@ -40,7 +54,7 @@ fn connect4_2_player(){
     }
 }
 
-fn toot_and_otto_2_player(){
+fn toot_and_otto_2_player(player1_name: String, player2_name: String){
     return;
 }
 
@@ -67,10 +81,96 @@ fn main() {
 
     match choice {
         1 => {
-            connect4_2_player();
+            println!("Would you like to play against computer or another player?");
+            println!("1. Computer");
+            println!("2. Another Player");
+
+             // Get the user's choice
+            let mut choice2 = String::new();
+            io::stdin().read_line(&mut choice2).expect("Failed to read line");
+
+            let choice2: u32 = match choice2.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("Invalid input, please enter a number");
+                    return;
+                }
+            };
+            
+
+            match choice2 {
+                1 => {
+                    // TODO AI CONNECT 4
+                }
+                2 => {
+                    println!("Please enter player 1's nameL: ");
+                    let mut player1_name = String::new();
+                    io::stdin().read_line(&mut player1_name).expect("Failed to read line");
+
+                    println!("Please enter player 2's name: ");
+                    let mut player2_name = String::new();
+                    io::stdin().read_line(&mut player2_name).expect("Failed to read line");
+
+                    // Trim is used to remove the newline character
+                    connect4_2_player(player1_name.trim().to_string(), player2_name.trim().to_string());
+                }
+                _ => {
+                    return;
+                }
+            }
+
+            
         }
         2 => {
-            toot_and_otto_2_player();
+            println!("Would you like to play against computer or another player?");
+            println!("1. Computer");
+            println!("2. Another Player");
+
+             // Get the user's choice
+            let mut choice2 = String::new();
+            io::stdin().read_line(&mut choice2).expect("Failed to read line");
+
+            let choice2: u32 = match choice2.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("Invalid input, please enter a number");
+                    return;
+                }
+            };
+            
+
+            match choice2 {
+                1 => {
+                    // TODO AI TOOT AND OTTO
+                }
+                2 => {
+                    println!("Please enter player 1's nameL: ");
+                    let mut player1_name = String::new();
+                    io::stdin().read_line(&mut player1_name).expect("Failed to read line");
+
+                    println!("Please enter player 2's name: ");
+                    let mut player2_name = String::new();
+                    io::stdin().read_line(&mut player2_name).expect("Failed to read line");
+
+                    println!("Would {} like to be Toot or Otto?: ", player1_name.trim().to_string());
+                    println!("1. Toot");
+                    println!("2. Otto");
+                    let mut player1_choice = String::new();
+                    io::stdin().read_line(&mut player1_choice).expect("Failed to read line");
+                    while player1_choice != 1 || player1_choice != 2{
+                        println!("Not a valid input, please try again");
+                        io::stdin().read_line(&mut player1_choice).expect("Failed to read line");
+                    }
+
+
+                    // Trim is used to remove the newline character
+                    toot_and_otto_2_player(player1_name.trim().to_string(), player2_name.trim().to_string());
+                }
+                _ => {
+                    return;
+                }
+            }
+            
         }
         _ => {
             return;

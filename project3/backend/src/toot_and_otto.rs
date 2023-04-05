@@ -1,6 +1,6 @@
 pub struct Board {
     pub grid: Grid,
-    pub current_turn: char,
+    pub current_turn: String,
     pub game_over: bool,
     pub player1: String,
     pub player2: String,
@@ -8,13 +8,16 @@ pub struct Board {
     pub ai_playing: bool,
     pub rows: usize,
     pub cols: usize,
+    pub winner: String,
+    pub otto_player: String,
+    pub toot_player: String,
 }
 
 impl Board {
-    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
+    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize, otto: String, toot: String) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
-            current_turn: 'T',
+            current_turn: player1_name.clone(),
             game_over: false,
             player1: player1_name,
             player2: player2_name,
@@ -22,6 +25,9 @@ impl Board {
             ai_playing: false,
             rows: rows_input,
             cols: cols_input,
+            winner: String::new(),
+            otto_player: otto,
+            toot_player: toot,
         };
         if with_ai{
             board.player2 = "Computer".to_string();
@@ -151,6 +157,10 @@ impl Board {
 
         false
     }
+
+    pub fn set_winner(&mut self, winner: String){
+        self.winner = winner;
+    }
 }
 
 pub struct Grid {
@@ -172,19 +182,19 @@ impl Grid {
         grid
     }
 
-    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> Result<usize, ()> {
+    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool{
         // Iteratively go through each row in the column until you find the empty one starting from the bottom
         for row in (0..self.num_rows).rev() {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
-                    return Ok(row);
+                    return false;
                 }
                 _ => {}
             }
         }
         // This means the col is full
-        return Err(());
+        return true;
     }
 
     pub fn get(&self, row: usize, col: usize) -> char {

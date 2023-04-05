@@ -8,6 +8,7 @@ pub struct Board {
     pub ai_playing: bool,
     pub rows: usize,
     pub cols: usize,
+    pub winner: String,
 }
 
 impl Board {
@@ -22,6 +23,7 @@ impl Board {
             ai_playing: false,
             rows: rows_input,
             cols: cols_input,
+            winner: String::new(),
         };
         if with_ai{
             board.player2 = "Computer".to_string();
@@ -40,7 +42,7 @@ impl Board {
         }
     }
 
-    pub fn check_win(&self) -> bool {
+    pub fn check_win(&mut self) -> bool {
         // Check for horizontal win
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
@@ -49,6 +51,11 @@ impl Board {
                     && self.grid.get(row, col + 2) == self.current_turn
                     && self.grid.get(row, col + 3) == self.current_turn
                 {
+                    if self.current_turn == 'X'{
+                        self.set_winner(self.player1.clone());
+                    } else {
+                        self.set_winner(self.player2.clone());
+                    }
                     return true;
                 }
             }
@@ -62,6 +69,11 @@ impl Board {
                     && self.grid.get(row + 2, col) == self.current_turn
                     && self.grid.get(row + 3, col) == self.current_turn
                 {
+                    if self.current_turn == 'X'{
+                        self.set_winner(self.player1.clone());
+                    } else {
+                        self.set_winner(self.player2.clone());
+                    }
                     return true;
                 }
             }
@@ -75,6 +87,11 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == self.current_turn
                     && self.grid.get(row + 3, col + 3) == self.current_turn
                 {
+                    if self.current_turn == 'X'{
+                        self.set_winner(self.player1.clone());
+                    } else {
+                        self.set_winner(self.player2.clone());
+                    }
                     return true;
                 }
             }
@@ -88,12 +105,21 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == self.current_turn
                     && self.grid.get(row - 3, col + 3) == self.current_turn
                 {
+                    if self.current_turn == 'X'{
+                        self.set_winner(self.player1.clone());
+                    } else {
+                        self.set_winner(self.player2.clone());
+                    }
                     return true;
                 }
             }
         }
 
         false
+    }
+
+    pub fn set_winner(&mut self, winner: String){
+        self.winner = winner;
     }
 }
 
@@ -116,19 +142,19 @@ impl Grid {
         grid
     }
 
-    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> Result<usize, ()> {
+    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool {
         // Iteratively go through each row in the column until you find the empty one starting from the bottom
         for row in (0..self.num_rows).rev() {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
-                    return Ok(row);
+                    return true;
                 }
                 _ => {}
             }
         }
         // This means the col is full
-        return Err(());
+        return false;
     }
 
     pub fn get(&self, row: usize, col: usize) -> char {
