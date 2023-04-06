@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
+mod controller;
 mod pages;
 mod router;
 use router::{switch, Route};

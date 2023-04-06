@@ -20,7 +20,14 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
+    pub fn new(
+        player1_name: String,
+        player2_name: String,
+        max_depth: u32,
+        with_ai: bool,
+        rows_input: usize,
+        cols_input: usize,
+    ) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
             current_turn: 'X',
@@ -33,7 +40,7 @@ impl Board {
             winner: String::new(),
             state: State::Running,
         };
-        if with_ai{
+        if with_ai {
             board.player2 = "Computer".to_string();
             board.ai_playing = true;
         }
@@ -59,7 +66,7 @@ impl Board {
                     && self.grid.get(row, col + 2) == self.current_turn
                     && self.grid.get(row, col + 3) == self.current_turn
                 {
-                    if self.current_turn == 'X'{
+                    if self.current_turn == 'X' {
                         self.set_winner(self.player1.clone());
                     } else {
                         self.set_winner(self.player2.clone());
@@ -78,7 +85,7 @@ impl Board {
                     && self.grid.get(row + 2, col) == self.current_turn
                     && self.grid.get(row + 3, col) == self.current_turn
                 {
-                    if self.current_turn == 'X'{
+                    if self.current_turn == 'X' {
                         self.set_winner(self.player1.clone());
                     } else {
                         self.set_winner(self.player2.clone());
@@ -97,7 +104,7 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == self.current_turn
                     && self.grid.get(row + 3, col + 3) == self.current_turn
                 {
-                    if self.current_turn == 'X'{
+                    if self.current_turn == 'X' {
                         self.set_winner(self.player1.clone());
                     } else {
                         self.set_winner(self.player2.clone());
@@ -116,7 +123,7 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == self.current_turn
                     && self.grid.get(row - 3, col + 3) == self.current_turn
                 {
-                    if self.current_turn == 'X'{
+                    if self.current_turn == 'X' {
                         self.set_winner(self.player1.clone());
                     } else {
                         self.set_winner(self.player2.clone());
@@ -130,7 +137,7 @@ impl Board {
         false
     }
 
-    pub fn check_draw(&mut self) -> bool{
+    pub fn check_draw(&mut self) -> bool {
         for row in 0..self.rows {
             for col in 0..self.cols {
                 if self.grid.get(row, col) == '_' {
@@ -151,7 +158,7 @@ impl Board {
         self.state = State::Running;
     }
 
-    pub fn set_winner(&mut self, winner: String){
+    pub fn set_winner(&mut self, winner: String) {
         self.winner = winner;
     }
 }
@@ -175,19 +182,19 @@ impl Grid {
         grid
     }
 
-    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool {
+    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> i32 {
         // Iteratively go through each row in the column until you find the empty one starting from the bottom
         for row in (0..self.num_rows).rev() {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
-                    return true;
+                    return row.try_into().unwrap();
                 }
                 _ => {}
             }
         }
         // This means the col is full
-        return false;
+        return -1;
     }
 
     pub fn get(&self, row: usize, col: usize) -> char {
@@ -199,6 +206,4 @@ impl Grid {
     }
 }
 
-fn main() {
-
-}
+fn main() {}
