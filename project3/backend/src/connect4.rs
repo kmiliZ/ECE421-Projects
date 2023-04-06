@@ -53,38 +53,62 @@ impl Board {
     }
 
     pub fn check_win(&mut self) -> bool {
+        let playerX = 'X';
+        let playerO = 'O';
+
         // Check for horizontal win
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == self.current_turn
-                    && self.grid.get(row, col + 1) == self.current_turn
-                    && self.grid.get(row, col + 2) == self.current_turn
-                    && self.grid.get(row, col + 3) == self.current_turn
+                if self.grid.get(row, col) == playerX
+                    && self.grid.get(row, col + 1) == playerX
+                    && self.grid.get(row, col + 2) == playerX
+                    && self.grid.get(row, col + 3) == playerX
                 {
-                    if self.current_turn == 'X'{
-                        self.set_winner(self.player1.clone());
-                    } else {
-                        self.set_winner(self.player2.clone());
-                    }
+                    self.set_winner(self.player1.clone());
                     self.state = State::Done;
                     return true;
                 }
             }
         }
 
+        for row in 0..self.rows {
+            for col in 0..self.cols - 3 {
+                if self.grid.get(row, col) == playerO
+                    && self.grid.get(row, col + 1) == playerO
+                    && self.grid.get(row, col + 2) == playerO
+                    && self.grid.get(row, col + 3) == playerO
+                {
+                    self.set_winner(self.player2.clone());
+                    self.state = State::Done;
+                    return true;
+                }
+            }
+        }
+
+
         // Check for vertical win
         for row in 0..self.rows - 3 {
             for col in 0..self.cols {
-                if self.grid.get(row, col) == self.current_turn
-                    && self.grid.get(row + 1, col) == self.current_turn
-                    && self.grid.get(row + 2, col) == self.current_turn
-                    && self.grid.get(row + 3, col) == self.current_turn
+                if self.grid.get(row, col) == playerX
+                    && self.grid.get(row + 1, col) == playerX
+                    && self.grid.get(row + 2, col) == playerX
+                    && self.grid.get(row + 3, col) == playerX
                 {
-                    if self.current_turn == 'X'{
-                        self.set_winner(self.player1.clone());
-                    } else {
-                        self.set_winner(self.player2.clone());
-                    }
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
+                    return true;
+                }
+            }
+        }
+
+        for row in 0..self.rows - 3 {
+            for col in 0..self.cols {
+                if self.grid.get(row, col) == playerO
+                    && self.grid.get(row + 1, col) == playerO
+                    && self.grid.get(row + 2, col) == playerO
+                    && self.grid.get(row + 3, col) == playerO
+                {
+                    self.set_winner(self.player2.clone());
                     self.state = State::Done;
                     return true;
                 }
@@ -94,16 +118,26 @@ impl Board {
         // Check for diagonal win (top-left to bottom-right)
         for row in 0..self.rows - 3 {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == self.current_turn
-                    && self.grid.get(row + 1, col + 1) == self.current_turn
-                    && self.grid.get(row + 2, col + 2) == self.current_turn
-                    && self.grid.get(row + 3, col + 3) == self.current_turn
+                if self.grid.get(row, col) == playerX
+                    && self.grid.get(row + 1, col + 1) == playerX
+                    && self.grid.get(row + 2, col + 2) == playerX
+                    && self.grid.get(row + 3, col + 3) == playerX
                 {
-                    if self.current_turn == 'X'{
-                        self.set_winner(self.player1.clone());
-                    } else {
-                        self.set_winner(self.player2.clone());
-                    }
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
+                    return true;
+                }
+            }
+        }
+
+        for row in 0..self.rows - 3 {
+            for col in 0..self.cols - 3 {
+                if self.grid.get(row, col) == playerO
+                    && self.grid.get(row + 1, col + 1) == playerO
+                    && self.grid.get(row + 2, col + 2) == playerO
+                    && self.grid.get(row + 3, col + 3) == playerO
+                {
+                    self.set_winner(self.player2.clone());
                     self.state = State::Done;
                     return true;
                 }
@@ -113,16 +147,26 @@ impl Board {
         // Check for diagonal win (bottom-left to top-right)
         for row in 3..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == self.current_turn
-                    && self.grid.get(row - 1, col + 1) == self.current_turn
-                    && self.grid.get(row - 2, col + 2) == self.current_turn
-                    && self.grid.get(row - 3, col + 3) == self.current_turn
+                if self.grid.get(row, col) == playerX
+                    && self.grid.get(row - 1, col + 1) == playerX
+                    && self.grid.get(row - 2, col + 2) == playerX
+                    && self.grid.get(row - 3, col + 3) == playerX
                 {
-                    if self.current_turn == 'X'{
-                        self.set_winner(self.player1.clone());
-                    } else {
-                        self.set_winner(self.player2.clone());
-                    }
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
+                    return true;
+                }
+            }
+        }
+
+        for row in 3..self.rows {
+            for col in 0..self.cols - 3 {
+                if self.grid.get(row, col) == playerO
+                    && self.grid.get(row - 1, col + 1) == playerO
+                    && self.grid.get(row - 2, col + 2) == playerO
+                    && self.grid.get(row - 3, col + 3) == playerO
+                {
+                    self.set_winner(self.player2.clone());
                     self.state = State::Done;
                     return true;
                 }
@@ -172,12 +216,12 @@ impl Board {
             if self.winner == self.player1 {
                 self.winner.clear();
                 self.state = State::Running;
-                return 1;
+                return -100;
             // Computer won
             } else if self.winner == self.player2 {
                 self.winner.clear();
                 self.state = State::Running;
-                return -1;
+                return 100;
             } else {
                 // Should never reach here
                 return 0;
@@ -199,15 +243,6 @@ impl Board {
         moves
     }
 
-    // Drops a piece that is of a specific player
-    pub fn drop_piece(&mut self, col: usize, player: char) {
-        let mut row = self.rows - 1;
-        while self.grid.get(row, col) != '_' {
-            row -= 1;
-        }
-        self.grid.set(row, col, player);
-    }
-
     // Removes the last piece dropped at a specified column
     pub fn undo_move(&mut self, col: usize) {
         for row in 0..self.rows {
@@ -218,79 +253,75 @@ impl Board {
         }
     }
 
-    pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32, i32) {
-        // check if the board is at a finished state
+    pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32) {
+        // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
-            return (self.game_value(), 0, 1);
+            return (self.game_value(), 0);
         } else if ply == 0 {
-            // if the algorithm runs out of depth, return zeros except for the number of expansions
-            // as this is the base case of recursion; similar to a terminal state
-            return (0, 0, 1);
+            // here the algorithm has run out of depth, which was set by the difficulty
+            return (0, 0);
         }
 
-        // initialize the two other return variables
         let mut optimal_move = 0;
-        let mut total_expansions = 1;
 
-        // for the maximizing player
-        if player == 'X' {
-            let mut value = i32::MIN; // start at the worst case value for the maximizing player
+        // for the maximizing Computer
+        if player == 'O' {
+            let mut eval = i32::MIN; // start at the worst case value for the maximizing computer
 
             // go through all available moves
-            for state in self.get_legal_moves() {
+            for col in self.get_legal_moves() {
                 // make the move
-                self.drop_piece(state, player);
+                self.grid.insert_chip(col, player);
                 // search at 1 greater depth
-                let (new_value, _, new_expansions) = self.alpha_beta('O', alpha, beta, ply - 1);
-                total_expansions += new_expansions;
+                let (new_eval, _) = self.alpha_beta('X', alpha, beta, ply - 1);
 
-                // change the game value if the search returned a better option
-                if new_value > value {
-                    value = new_value;
-                    optimal_move = state; // keep track of the optimal move
+                // change the game eval if the search returned a better option
+                if new_eval > eval {
+                    eval = new_eval;
+                    optimal_move = col;
                 }
-                // undo the move to preserve board state
-                self.undo_move(state);
+                // undo the move to go back to original
+                self.undo_move(col);
 
                 // check the pruning condition
-                if value >= beta {
-                    break; // goes straight to return
+                if eval >= beta {
+                    break;
                 }
                 // update alpha
-                alpha = alpha.max(value);
+                alpha = alpha.max(eval);
             }
-
-            return (value, optimal_move.try_into().unwrap(), total_expansions);
+            return (eval, optimal_move.try_into().unwrap());
         }
-        // for the minimizing player
-        else {
-            let mut value = i32::MAX; // start at the worst case value for the minimizing player
+        // for the minimizing Player
+        else if player == 'X' {
+            let mut eval = i32::MAX; // start at the worst case eval for the minimizing player
 
             // go through all available moves
-            for state in self.get_legal_moves() {
+            for col in self.get_legal_moves() {
                 // make the move
-                self.drop_piece(state, player);
+                self.grid.insert_chip(col, player);
                 // search at 1 greater depth
-                let (new_value, _, new_expansions) = self.alpha_beta('X', alpha, beta, ply - 1);
-                total_expansions += new_expansions;
+                let (new_eval, _) = self.alpha_beta('O', alpha, beta, ply - 1);
 
-                // change the game value if the search returned a better option
-                if new_value < value {
-                    value = new_value;
-                    optimal_move = state; // keep track of the optimal move
+                // change the game eval if the search returned a better option
+                if new_eval < eval {
+                    eval = new_eval;
+                    optimal_move = col;
                 }
-                // undo the move to preserve the board state
-                self.undo_move(state);
+                // undo the move to go back to original
+                self.undo_move(col);
 
                 // check the pruning condition
-                if value <= alpha {
-                    break; // goes straight to return
+                if eval <= alpha {
+                    break;
                 }
                 // update beta
-                beta = beta.min(value);
+                beta = beta.min(eval);
             }
-
-            return (value, optimal_move.try_into().unwrap(), total_expansions);
+            return (eval, optimal_move.try_into().unwrap());
+        } else {
+            //Shoould never reach here
+            return (0, 0);
         }
     }
 

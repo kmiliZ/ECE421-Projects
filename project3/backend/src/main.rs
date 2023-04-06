@@ -116,7 +116,7 @@ fn connect4_computer(player1_name: String, difficulty: i32) {
         } else {
             // Computer's turn
             println!("{}'s turn", board.player2);
-            let (pruning_value, best_col, expansion) = board.alpha_beta(board.current_turn, i32::MIN, i32::MAX, board.ai_depth);
+            let (pruning_value, best_col) = board.alpha_beta(board.current_turn, i32::MIN, i32::MAX, board.ai_depth);
             board.grid.insert_chip(best_col.try_into().unwrap(), board.current_turn);
         }
         
