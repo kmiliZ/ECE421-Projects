@@ -253,6 +253,9 @@ impl Board {
         }
     }
 
+    //https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
+    // For explaining minimax and alpha beta pruning.
+
     pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32) {
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
@@ -264,18 +267,19 @@ impl Board {
 
         let mut optimal_move = 0;
 
-        // for the maximizing Computer
+        // maximize computer
         if player == 'O' {
-            let mut eval = i32::MIN; // start at the worst case value for the maximizing computer
+            // start at the worst case value for the maximizing computer
+            let mut eval = i32::MIN; 
 
             // go through all available moves
             for col in self.get_legal_moves() {
-                // make the move
+
                 self.grid.insert_chip(col, player);
-                // search at 1 greater depth
+                // search at 1 more depth using recursion
                 let (new_eval, _) = self.alpha_beta('X', alpha, beta, ply - 1);
 
-                // change the game eval if the search returned a better option
+                // if the result found a better col, then replace
                 if new_eval > eval {
                     eval = new_eval;
                     optimal_move = col;
@@ -292,18 +296,19 @@ impl Board {
             }
             return (eval, optimal_move.try_into().unwrap());
         }
-        // for the minimizing Player
+        // maximize player
         else if player == 'X' {
-            let mut eval = i32::MAX; // start at the worst case eval for the minimizing player
+            // start at the worst case eval for the minimizing player
+            let mut eval = i32::MAX; 
 
             // go through all available moves
             for col in self.get_legal_moves() {
-                // make the move
+
                 self.grid.insert_chip(col, player);
-                // search at 1 greater depth
+                // search at 1 more depth using recursion
                 let (new_eval, _) = self.alpha_beta('O', alpha, beta, ply - 1);
 
-                // change the game eval if the search returned a better option
+                // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
