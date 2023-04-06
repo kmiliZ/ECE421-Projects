@@ -10,6 +10,7 @@ fn connect4_2_player(player1_name: String, player2_name: String){
     while board.state == State::Running {
         board.display();
 
+        // Checking who's turn it is
         if board.current_turn == 'X'{
             println!("{}'s turn", board.player1);
         } else {
@@ -17,6 +18,7 @@ fn connect4_2_player(player1_name: String, player2_name: String){
         }
         println!("Enter column (1-7): ");
 
+        // Getting input from user
         while true {
             let mut col = String::new();
             stdin().read_line(&mut col).expect("Did not enter a correct string");
@@ -34,12 +36,92 @@ fn connect4_2_player(player1_name: String, player2_name: String){
                 continue;
             }
 
-            if board.grid.insert_chip(col - 1, board.current_turn){
+            if board.grid.insert_chip(col - 1, board.current_turn) != -1{
                 break;
             };
             println!("That column is full");
         }
 
+        // Checking for win or draw
+        if board.check_win() {
+            println!("{} wins", board.winner);
+            board.display();
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+
+        } else if board.check_draw() {
+            println!("Game has ended in a draw!");
+            board.display();
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+        // Switches turns if there is no win or draw
+        } else {
+            if board.current_turn == 'X' {
+                board.current_turn = 'O';
+            } else {
+                board.current_turn = 'X';
+            }
+        }
+
+    }
+}
+
+fn connect4_computer(player1_name: String, difficulty: i32) {
+    use std::io::{stdin,stdout,Write};
+    let mut board = connect4::Board::new(player1_name.trim().to_string(), "Computer".to_string(), difficulty, true, 6, 7);
+
+    while board.state == State::Running {
+        board.display();
+
+        if board.current_turn == 'X'{
+            // Player turn
+            println!("{}'s turn", board.player1);
+            println!("Enter column (1-7): ");
+
+            while true {
+                let mut col = String::new();
+                stdin().read_line(&mut col).expect("Did not enter a correct string");
+
+                let col: usize = match col.trim().parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("Invalid input, please enter a number");
+                        continue;
+                    }
+                };
+
+                if col < 1 || col > board.cols.try_into().unwrap() {
+                    println!("Please enter a number less than {}", board.cols);
+                    continue;
+                }
+
+                if board.grid.insert_chip(col - 1, board.current_turn) != -1{
+                    break;
+                };
+                println!("That column is full");
+            }
+
+        } else {
+            // Computer's turn
+            println!("{}'s turn", board.player2);
+            let (pruning_value, best_col, expansion) = board.alpha_beta(board.current_turn, i32::MIN, i32::MAX, board.ai_depth);
+            board.grid.insert_chip(best_col.try_into().unwrap(), board.current_turn);
+        }
+        
+        
+        // Checking for wins or draw
         if board.check_win() {
             println!("{} wins", board.winner);
             board.display();
@@ -65,17 +147,19 @@ fn connect4_2_player(player1_name: String, player2_name: String){
             }
 
         } else {
+        // Switching turns if the there is no win or draw
             if board.current_turn == 'X' {
                 board.current_turn = 'O';
             } else {
                 board.current_turn = 'X';
             }
         }
-
     }
+
+
 }
 
-fn toot_and_otto_2_player(player1_name: String, player2_name: String){
+fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
     return;
 }
 
@@ -122,6 +206,51 @@ fn main() {
             match choice2 {
                 1 => {
                     // TODO AI CONNECT 4
+                    println!("Please enter player's name: ");
+                    let mut player1_name = String::new();
+                    io::stdin().read_line(&mut player1_name).expect("Failed to read line");
+
+
+                    println!("What difficulty would you like?");
+                    println!("1. Very Easy");
+                    println!("2. Easy");
+                    println!("3. Medium");
+                    println!("4. Hard");
+                    println!("5. Impossible");
+
+                    let mut difficulty = String::new();
+                    io::stdin().read_line(&mut difficulty).expect("Failed to read line");
+
+                    let difficulty: i32 = match difficulty.trim().parse() {
+                        Ok(num) => num,
+                        Err(_) => {
+                            println!("Invalid input, please enter a number");
+                            return;
+                        }
+                    };
+
+                    match difficulty {
+                        1 => {
+                            connect4_computer(player1_name, 2);
+                        }
+                        2 => {
+                            connect4_computer(player1_name, 4);
+                        }
+                        3 => {
+                            connect4_computer(player1_name, 6);
+                        }
+                        4 => {
+                            connect4_computer(player1_name, 8);
+                        }
+                        5 => {
+                            connect4_computer(player1_name, 10);
+                        }
+                        _ =>{
+                            println!("Invalid option");
+                            return;
+                        }
+                    }
+
                 }
                 2 => {
                     println!("Please enter player 1's name: ");
