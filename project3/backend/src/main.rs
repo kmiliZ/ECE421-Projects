@@ -1,12 +1,13 @@
 mod connect4;
 mod toot_and_otto;
 use std::io;
+use crate::connect4::State;
 
 fn connect4_2_player(player1_name: String, player2_name: String){
     use std::io::{stdin,stdout,Write};
     let mut board = connect4::Board::new(player1_name, player2_name, 0, false, 6, 7);
 
-    while !board.game_over {
+    while board.state == State::Running {
         board.display();
 
         if board.current_turn == 'X'{
@@ -41,9 +42,28 @@ fn connect4_2_player(player1_name: String, player2_name: String){
 
         if board.check_win() {
             println!("{} wins", board.winner);
-            
             board.display();
-            board.game_over = true;
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+
+        } else if board.check_draw() {
+            println!("Game has ended in a draw!");
+            board.display();
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+
         } else {
             if board.current_turn == 'X' {
                 board.current_turn = 'O';
@@ -51,6 +71,7 @@ fn connect4_2_player(player1_name: String, player2_name: String){
                 board.current_turn = 'X';
             }
         }
+
     }
 }
 
@@ -103,7 +124,7 @@ fn main() {
                     // TODO AI CONNECT 4
                 }
                 2 => {
-                    println!("Please enter player 1's nameL: ");
+                    println!("Please enter player 1's name: ");
                     let mut player1_name = String::new();
                     io::stdin().read_line(&mut player1_name).expect("Failed to read line");
 
@@ -144,7 +165,7 @@ fn main() {
                     // TODO AI TOOT AND OTTO
                 }
                 2 => {
-                    println!("Please enter player 1's nameL: ");
+                    println!("Please enter player 1's name: ");
                     let mut player1_name = String::new();
                     io::stdin().read_line(&mut player1_name).expect("Failed to read line");
 
@@ -157,7 +178,7 @@ fn main() {
                     println!("2. Otto");
                     let mut player1_choice = String::new();
                     io::stdin().read_line(&mut player1_choice).expect("Failed to read line");
-                    while player1_choice != 1 || player1_choice != 2{
+                    while player1_choice != "1" || player1_choice != "2"{
                         println!("Not a valid input, please try again");
                         io::stdin().read_line(&mut player1_choice).expect("Failed to read line");
                     }

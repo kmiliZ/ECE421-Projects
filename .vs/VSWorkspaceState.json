@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\project2\\src",
+    "\\project3",
+    "\\project3\\backend",
+    "\\project3\\backend\\src"
+  ],
+  "SelectedNode": "\\project3\\backend\\src\\connect4.rs",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,7 +1,14 @@
+#[derive(PartialEq)]
+pub enum State {
+    Done,
+    Running,
+    Busy,
+    NotRunning,
+}
+
 pub struct Board {
     pub grid: Grid,
     pub current_turn: char,
-    pub game_over: bool,
     pub player1: String,
     pub player2: String,
     pub ai_depth: u32,
@@ -9,6 +16,7 @@ pub struct Board {
     pub rows: usize,
     pub cols: usize,
     pub winner: String,
+    pub state: State,
 }
 
 impl Board {
@@ -16,7 +24,6 @@ impl Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
             current_turn: 'X',
-            game_over: false,
             player1: player1_name,
             player2: player2_name,
             ai_depth: max_depth,
@@ -24,6 +31,7 @@ impl Board {
             rows: rows_input,
             cols: cols_input,
             winner: String::new(),
+            state: State::Running,
         };
         if with_ai{
             board.player2 = "Computer".to_string();
@@ -56,6 +64,7 @@ impl Board {
                     } else {
                         self.set_winner(self.player2.clone());
                     }
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -74,6 +83,7 @@ impl Board {
                     } else {
                         self.set_winner(self.player2.clone());
                     }
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -92,6 +102,7 @@ impl Board {
                     } else {
                         self.set_winner(self.player2.clone());
                     }
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -110,12 +121,34 @@ impl Board {
                     } else {
                         self.set_winner(self.player2.clone());
                     }
+                    self.state = State::Done;
                     return true;
                 }
             }
         }
 
         false
+    }
+
+    pub fn check_draw(&mut self) -> bool{
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                if self.grid.get(row, col) == '_' {
+                    // Found an empty cell, the game is not a draw
+                    return false;
+                }
+            }
+        }
+        // All cells are filled, the game is a draw
+        self.state = State::Done;
+        true
+    }
+
+    pub fn restart(&mut self) {
+        self.grid = Grid::new(self.rows, self.cols);
+        self.current_turn = 'X';
+        self.winner.clear();
+        self.state = State::Running;
     }
 
     pub fn set_winner(&mut self, winner: String){
