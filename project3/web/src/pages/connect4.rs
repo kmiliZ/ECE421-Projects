@@ -147,15 +147,21 @@ impl Component for Connect4 {
                         .borrow_mut()
                         .grid
                         .insert_chip(col, self.current_player.to_char().clone());
-                    log!(
-                        "=>inserted row number: ",
-                        inserted_row,
-                        "for player",
-                        self.current_player
-                            .to_string("player 1".to_string(), "player 2".to_string())
-                    );
+                    // log!(
+                    //     "=>inserted row number: ",
+                    //     inserted_row,
+                    //     "for player",
+                    //     self.current_player
+                    //         .to_string("player 1".to_string(), "player 2".to_string())
+                    // );
                     if inserted_row >= 0 {
                         log!("draw chip");
+                        canvas_controller::animate(
+                            self.canvas_id.clone(),
+                            col as i64,
+                            inserted_row as i64,
+                            0,
+                        );
 
                         self.canvas.as_ref().unwrap().draw_circle(
                             self.current_player.get_color(),

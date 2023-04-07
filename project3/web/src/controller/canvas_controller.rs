@@ -1,4 +1,8 @@
+use backend::connect4::Board;
 use core::f64::consts::PI;
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 // do canvas struct and implement draw_canvas, draw circle, animation and stuff
@@ -35,6 +39,16 @@ impl Canvas {
         let x_f = (75 * x + 100) as f64;
         let y_f = (75 * y + 50) as f64;
         let _ = self.context.arc(x_f, y_f, r, 0.0, 2.0 * PI);
+        self.context.fill();
+        self.context.restore();
+    }
+
+    // TODO: don't have duplicated code
+    pub fn draw_circle_f(&self, fill_value: String, x: f64, y: f64, r: f64) {
+        self.context.save();
+        self.context.set_fill_style(&fill_value.into());
+        self.context.begin_path();
+        let _ = self.context.arc(x, y, r, 0.0, 2.0 * PI);
         self.context.fill();
         self.context.restore();
     }
@@ -83,10 +97,32 @@ impl Canvas {
             .context
             .fill_text_with_max_width(&text, x, y, self.canvas.width().into());
     }
+}
 
-    pub fn animate(&self) {
-        let window = web_sys::window().unwrap();
-        // window.request_animation_frame(callback);
-        // TODO:fix this
+pub fn draw_circle_at_canvas(id: String, fill_value: String, x: f64, y: f64) {
+    let canvas = Canvas::new(id);
+    canvas.draw_circle_f(fill_value, x, y, 25.0);
+}
+
+pub fn animate(canvas_id: String, column: i64, to_row: i64, current_position: i64) {
+    let window = web_sys::window().unwrap();
+    // window.request_animation_frame(callback);
+    // TODO:fix this
+    if to_row * 75 >= current_position {
+        draw_circle_at_canvas(
+            canvas_id.clone(),
+            "red".to_string(),
+            (75 * column + 100) as f64,
+            (current_position + 50) as f64,
+        );
+
+        // TODO:clear the previous motion
+
+        let closure = Closure::wrap(Box::new(move || {
+            animate(canvas_id.clone(), column, to_row, current_position + 25)
+        }) as Box<dyn FnMut()>);
+
+        let _ = window.request_animation_frame(closure.as_ref().unchecked_ref());
+        closure.forget();
     }
 }
