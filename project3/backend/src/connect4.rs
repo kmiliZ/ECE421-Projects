@@ -188,6 +188,7 @@ impl Grid {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
+                    print!("inserted row is {}", row);
                     return row.try_into().unwrap();
                 }
                 _ => {}
