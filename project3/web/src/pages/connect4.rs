@@ -84,8 +84,8 @@ impl Connect4 {
         self.canvas.as_ref().unwrap().clear_canvas();
     }
 
-    fn fill_text(&mut self, text: String) {
-        self.canvas.as_ref().unwrap().fill_text(text);
+    fn fill_text(&self, text: String) {
+        canvas_controller::fill_text(self.canvas_id.clone(), text, "black".to_owned())
     }
 
     fn change_current_board_turn(&mut self) {
@@ -154,6 +154,7 @@ impl Component for Connect4 {
                     //     self.current_player
                     //         .to_string("player 1".to_string(), "player 2".to_string())
                     // );
+                    let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
                         log!("draw chip");
                         canvas_controller::animate(
@@ -161,6 +162,7 @@ impl Component for Connect4 {
                             col as i64,
                             inserted_row as i64,
                             0,
+                            color,
                         );
 
                         self.canvas.as_ref().unwrap().draw_circle(
@@ -172,7 +174,7 @@ impl Component for Connect4 {
                         if self.check_win() {
                             self.is_active = false;
                             let win_string = format!(
-                                "{} wins! clicked the board to restart",
+                                "{} wins! clicked board to restart",
                                 self.current_player.to_string(
                                     self.player1_name.clone(),
                                     self.player2_name.clone()
@@ -182,9 +184,12 @@ impl Component for Connect4 {
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
-                                self.fill_text(
+
+                                canvas_controller::fill_text(
+                                    self.canvas_id.clone(),
                                     "draw! click on board to restart the game".to_string(),
-                                );
+                                    "black".to_owned(),
+                                )
                             }
                         }
                         // change current turn here, both board and connect4
