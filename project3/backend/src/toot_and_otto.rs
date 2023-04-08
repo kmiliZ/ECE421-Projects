@@ -1,7 +1,14 @@
+#[derive(PartialEq)]
+pub enum State {
+    Done,
+    Running,
+    Busy,
+    NotRunning,
+}
+
 pub struct Board {
     pub grid: Grid,
-    pub current_turn: String,
-    pub game_over: bool,
+    pub current_turn: char,
     pub player1: String,
     pub player2: String,
     pub ai_depth: u32,
@@ -9,16 +16,15 @@ pub struct Board {
     pub rows: usize,
     pub cols: usize,
     pub winner: String,
-    pub otto_player: String,
-    pub toot_player: String,
+    pub state: State,
 }
 
 impl Board {
-    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize, otto: String, toot: String) -> Board {
+    // Assumption that player 1 is always toot and player 2 is always otto
+    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
-            current_turn: player1_name.clone(),
-            game_over: false,
+            current_turn: 'T',
             player1: player1_name,
             player2: player2_name,
             ai_depth: max_depth,
@@ -26,8 +32,7 @@ impl Board {
             rows: rows_input,
             cols: cols_input,
             winner: String::new(),
-            otto_player: otto,
-            toot_player: toot,
+            state: State::Running,
         };
         if with_ai{
             board.player2 = "Computer".to_string();
@@ -46,7 +51,7 @@ impl Board {
         }
     }
 
-    pub fn check_win_toot(&self) -> bool {
+    pub fn check_win_toot(&mut self) -> bool {
         // Check for horizontal win
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
@@ -55,6 +60,8 @@ impl Board {
                     && self.grid.get(row, col + 2) == 'O'
                     && self.grid.get(row, col + 3) == 'T'
                 {
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -68,6 +75,8 @@ impl Board {
                     && self.grid.get(row + 2, col) == 'O'
                     && self.grid.get(row + 3, col) == 'T'
                 {
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -81,6 +90,8 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == 'O'
                     && self.grid.get(row + 3, col + 3) == 'T'
                 {
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -94,6 +105,8 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == 'O'
                     && self.grid.get(row - 3, col + 3) == 'T'
                 {
+                    self.set_winner(self.player1.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -102,7 +115,7 @@ impl Board {
         false
     }
 
-    pub fn check_win_otto(&self) -> bool {
+    pub fn check_win_otto(&mut self) -> bool {
         // Check for horizontal win
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
@@ -111,6 +124,8 @@ impl Board {
                     && self.grid.get(row, col + 2) == 'T'
                     && self.grid.get(row, col + 3) == 'O'
                 {
+                    self.set_winner(self.player2.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -124,6 +139,8 @@ impl Board {
                     && self.grid.get(row + 2, col) == 'T'
                     && self.grid.get(row + 3, col) == 'O'
                 {
+                    self.set_winner(self.player2.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -137,6 +154,8 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == 'T'
                     && self.grid.get(row + 3, col + 3) == 'O'
                 {
+                    self.set_winner(self.player2.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
@@ -150,12 +169,35 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == 'T'
                     && self.grid.get(row - 3, col + 3) == 'O'
                 {
+                    self.set_winner(self.player2.clone());
+                    self.state = State::Done;
                     return true;
                 }
             }
         }
 
         false
+    }
+
+    pub fn check_draw(&mut self) -> bool{
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                if self.grid.get(row, col) == '_' {
+                    // Found an empty cell, the game is not a draw
+                    return false;
+                }
+            }
+        }
+        // All cells are filled, the game is a draw
+        self.state = State::Done;
+        true
+    }
+
+    pub fn restart(&mut self) {
+        self.grid = Grid::new(self.rows, self.cols);
+        self.current_turn = 'T';
+        self.winner.clear();
+        self.state = State::Running;
     }
 
     pub fn set_winner(&mut self, winner: String){
@@ -182,19 +224,19 @@ impl Grid {
         grid
     }
 
-    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool{
+    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> i32 {
         // Iteratively go through each row in the column until you find the empty one starting from the bottom
         for row in (0..self.num_rows).rev() {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
-                    return false;
+                    return row.try_into().unwrap();
                 }
                 _ => {}
             }
         }
         // This means the col is full
-        return true;
+        return -1;
     }
 
     pub fn get(&self, row: usize, col: usize) -> char {
