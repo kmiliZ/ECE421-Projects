@@ -209,6 +209,10 @@ fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
     }
 }
 
+fn toot_and_otto_computer(player1_name: String, difficulty: i32){
+
+}
+
 // Gets a uszie input from the user in the upper and lower bounds given
 fn get_input(lower_bound: usize, upper_bound: usize) -> usize{
     use std::io::{stdin,stdout,Write};
