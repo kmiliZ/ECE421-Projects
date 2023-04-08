@@ -216,23 +216,18 @@ impl Board {
 
     // Returns who won in game for the alpha_beta algorithm
     pub fn game_value(&mut self) -> i32{
-        if self.check_win() {
-            // Player won
-            if self.check_win_toot() {
-                self.winner.clear();
-                self.state = State::Running;
-                return -100;
-            // Computer won
-            } else if self.check_win_otto() {
-                self.winner.clear();
-                self.state = State::Running;
-                return 100;
-            } else {
-                // Should never reach here
-                return 0;
-            }
+        // Player won
+        if self.check_win_toot() {
+            self.winner.clear();
+            self.state = State::Running;
+            return -100;
+        // Computer won
+        } else if self.check_win_otto() {
+            self.winner.clear();
+            self.state = State::Running;
+            return 100;
         } else {
-            // No winner or draw
+            // Should never reach here
             return 0;
         }
     }
