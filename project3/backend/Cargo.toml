@@ -6,3 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+yew = "0.19.3"
+
+[lib]
+name = "backend"
+path = "src/mod.rs"
+crate-type = ["lib"]

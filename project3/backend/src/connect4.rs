@@ -22,6 +22,7 @@ pub struct Board {
 
 impl Board {
     pub fn new(player1_name: String, player2_name: String, max_depth: i32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
+
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
             current_turn: 'X',
@@ -35,7 +36,7 @@ impl Board {
             winner: String::new(),
             state: State::Running,
         };
-        if with_ai{
+        if with_ai {
             board.player2 = "Computer".to_string();
             board.ai_playing = true;
         }
@@ -79,6 +80,7 @@ impl Board {
                     && self.grid.get(row, col + 3) == playerO
                 {
                     self.set_winner(self.player2.clone());
+
                     self.state = State::Done;
                     return true;
                 }
@@ -108,7 +110,9 @@ impl Board {
                     && self.grid.get(row + 2, col) == playerO
                     && self.grid.get(row + 3, col) == playerO
                 {
+
                     self.set_winner(self.player2.clone());
+
                     self.state = State::Done;
                     return true;
                 }
@@ -123,6 +127,7 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == playerX
                     && self.grid.get(row + 3, col + 3) == playerX
                 {
+
                     self.set_winner(self.player1.clone());
                     self.state = State::Done;
                     return true;
@@ -138,6 +143,7 @@ impl Board {
                     && self.grid.get(row + 3, col + 3) == playerO
                 {
                     self.set_winner(self.player2.clone());
+
                     self.state = State::Done;
                     return true;
                 }
@@ -166,7 +172,9 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == playerO
                     && self.grid.get(row - 3, col + 3) == playerO
                 {
+
                     self.set_winner(self.player2.clone());
+
                     self.state = State::Done;
                     return true;
                 }
@@ -176,7 +184,7 @@ impl Board {
         false
     }
 
-    pub fn check_draw(&mut self) -> bool{
+    pub fn check_draw(&mut self) -> bool {
         for row in 0..self.rows {
             for col in 0..self.cols {
                 if self.grid.get(row, col) == '_' {
@@ -197,7 +205,7 @@ impl Board {
         self.state = State::Running;
     }
 
-    pub fn set_winner(&mut self, winner: String){
+    pub fn set_winner(&mut self, winner: String) {
         self.winner = winner;
     }
 
@@ -358,6 +366,7 @@ impl Grid {
             match self.get(row, col) {
                 '_' => {
                     self.set(row, col, grid_val);
+
                     return row.try_into().unwrap();
                 }
                 _ => {}
@@ -376,6 +385,4 @@ impl Grid {
     }
 }
 
-fn main() {
-
-}
+fn main() {}

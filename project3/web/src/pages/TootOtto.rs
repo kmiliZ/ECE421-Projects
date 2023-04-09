@@ -1,6 +1,6 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
-use backend::connect4::Board;
+use backend::toot_and_otto::Board;
 use gloo::console::*;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
@@ -8,7 +8,7 @@ use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
 use yew::virtual_dom::VNode;
 use yew::{events::Event, html, Component, Context};
-pub struct Connect4 {
+pub struct TootOtto {
     board: Rc<RefCell<Board>>,
     is_active: bool,
     player1_name: String,
@@ -53,10 +53,10 @@ pub enum Msg {
     InsertChip((usize, usize)),
     Stop,
 }
-impl Connect4 {
+impl TootOtto {
     fn check_win(&self) -> bool {
         log!("checking win...");
-        if self.board.as_ref().borrow_mut().check_win() {
+        if self.board.as_ref().borrow_mut().check_win_otto() {
             return true;
         }
         false
@@ -95,11 +95,11 @@ impl Connect4 {
     }
 }
 
-impl Component for Connect4 {
+impl Component for TootOtto {
     type Message = Msg;
     type Properties = ();
     fn create(_ctx: &Context<Self>) -> Self {
-        Connect4 {
+        TootOtto {
             board: Rc::new(RefCell::new(Board::new(
                 "".to_string(),
                 "".to_string(),
@@ -112,7 +112,7 @@ impl Component for Connect4 {
             player1_name: "".to_string(),
             player2_name: "".to_string(),
             canvas: None,
-            canvas_id: "gameboard-connect4-hh".to_string(),
+            canvas_id: "gameboard-TootOtto-hh".to_string(),
             current_player: Player::Player1,
         }
     }
@@ -192,7 +192,7 @@ impl Component for Connect4 {
                                 )
                             }
                         }
-                        // change current turn here, both board and connect4
+                        // change current turn here, both board and TootOtto
                         match self.current_player {
                             Player::Player1 => self.current_player = Player::Player2,
                             Player::Player2 => self.current_player = Player::Player1,

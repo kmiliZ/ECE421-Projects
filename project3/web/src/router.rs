@@ -1,5 +1,6 @@
 use crate::pages::{
-    howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot, mainPage::MainPage,
+    connect4::Connect4, howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot,
+    mainPage::MainPage,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -29,7 +30,7 @@ pub enum Route {
 pub fn switch(routes: &Route) -> Html {
     match routes.clone() {
         Route::connect4 => html! {
-            // <connect_4::connect_4 />
+           <Connect4/>
         },
         Route::toot_otto => html! {
             // <toot_otto::toot_otto />
