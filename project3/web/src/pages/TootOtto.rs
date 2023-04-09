@@ -16,6 +16,7 @@ pub struct TootOtto {
     canvas: Option<canvas_controller::Canvas>,
     canvas_id: String,
     current_player: Player,
+    discType: DiscType,
 }
 
 pub enum Player {
@@ -23,11 +24,46 @@ pub enum Player {
     Player2,
 }
 
+pub enum DiscType {
+    T,
+    O,
+}
+
+impl DiscType {
+    pub fn to_char(&self) -> char {
+        match self {
+            Self::T => 'T',
+            Self::O => 'O',
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::T => "T".to_string(),
+            Self::O => "O".to_string(),
+        }
+    }
+
+    pub fn is_o_selected(&self) -> bool {
+        match self {
+            Self::T => false,
+            Self::O => true,
+        }
+    }
+
+    pub fn is_t_selected(&self) -> bool {
+        match self {
+            Self::T => true,
+            Self::O => false,
+        }
+    }
+}
+
 impl Player {
     pub fn to_char(&self) -> char {
         match self {
-            Player::Player1 => 'X',
-            Player::Player2 => 'O',
+            Self::Player1 => 'X',
+            Self::Player2 => 'O',
         }
     }
 
@@ -95,10 +131,6 @@ impl TootOtto {
         self.canvas.as_ref().unwrap().clear_canvas();
     }
 
-    fn display_text_on_canvas(&self, text: String) {
-        canvas_controller::display_text_on_canvas(self.canvas_id.clone(), text, "black".to_owned())
-    }
-
     fn change_current_board_turn(&mut self) {
         let player = &self.current_player;
 
@@ -125,6 +157,7 @@ impl Component for TootOtto {
             canvas: None,
             canvas_id: "gameboard-TootOtto-hh".to_string(),
             current_player: Player::Player1,
+            discType: DiscType::T,
         }
     }
 
@@ -152,56 +185,47 @@ impl Component for TootOtto {
             }
             Msg::InsertChip((col, _row)) => {
                 if self.is_active {
+                    // grab radio input value for disc type
+
+                    let document = web_sys::window().unwrap().document().unwrap();
+                    let element = document.get_element_by_id(&"input-disc-T").unwrap();
+                    let input_select_t: web_sys::HtmlInputElement = element
+                        .dyn_into::<web_sys::HtmlInputElement>()
+                        .map_err(|_| ())
+                        .unwrap();
+                    let is_checked = input_select_t.checked();
+                    if is_checked {
+                        self.discType = DiscType::T;
+                    } else {
+                        self.discType = DiscType::O;
+                    }
                     let inserted_row = self
                         .board
                         .as_ref()
                         .borrow_mut()
                         .grid
-                        .insert_chip(col, self.current_player.to_char().clone());
-                    // log!(
-                    //     "=>inserted row number: ",
-                    //     inserted_row,
-                    //     "for player",
-                    //     self.current_player
-                    //         .to_string("player 1".to_string(), "player 2".to_string())
-                    // );
+                        .insert_chip(col, self.discType.to_char().clone());
+
                     let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
-                        log!("draw chip");
                         canvas_controller::animate(
                             self.canvas_id.clone(),
                             col as i64,
                             inserted_row as i64,
                             0,
                             color,
-                            Some("T".to_string()),
+                            Some(self.discType.to_string().clone()),
+                            self.check_win(),
+                            self.check_draw(),
+                            self.current_player
+                                .to_string(self.player1_name.clone(), self.player2_name.clone()),
                         );
 
-                        self.canvas.as_ref().unwrap().draw_circle(
-                            self.current_player.get_color(),
-                            col,
-                            inserted_row.try_into().unwrap(),
-                            25.0,
-                        );
                         if self.check_win() {
                             self.is_active = false;
-                            let win_string = format!(
-                                "{} wins! clicked board to restart",
-                                self.current_player.to_string(
-                                    self.player1_name.clone(),
-                                    self.player2_name.clone()
-                                )
-                            );
-                            self.display_text_on_canvas(win_string);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
-
-                                canvas_controller::display_text_on_canvas(
-                                    self.canvas_id.clone(),
-                                    "draw! click on board to restart the game".to_string(),
-                                    "black".to_owned(),
-                                )
                             }
                         }
                         // change current turn here, both board and TootOtto
@@ -298,7 +322,7 @@ impl Component for TootOtto {
                     <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
                 </div>
             </form>
-            if self.is_active {
+
 
             <div  >
                 <br/>
@@ -308,15 +332,13 @@ impl Component for TootOtto {
                 <br/>
                 <form>
                 <h4>{"Select a Disc Type   :"}
-                  <input type="radio" name="choice" value="T" selected=true /> {"T"}
-                  <input type="radio" name="choice" value="O" selected=false />{"O"}
+                  <input type="radio" name="choice" value="T" id="input-disc-T" checked={self.discType.is_t_selected()}/> {"T"}
+                  <input type="radio" name="choice" value="O" id="input-disc-O" checked={self.discType.is_o_selected()}/>{"O"}
 
            </h4>
            </form>
             </div>
             <br/>
-            }
-
                 <canvas id={self.canvas_id.clone()} height="480" width="640"></canvas>
             </div>
         </div>

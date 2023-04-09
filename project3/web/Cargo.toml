@@ -30,6 +30,7 @@ features = [
   "RequestMode",
   "Response",
   "HtmlCanvasElement",
+  "HtmlInputElement",
   "Window",
   "Document",
   "CanvasRenderingContext2d",

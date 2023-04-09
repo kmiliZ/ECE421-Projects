@@ -38,6 +38,7 @@ impl Canvas {
 
         Canvas { canvas, context }
     }
+
     pub fn draw_circle(&self, fill_value: String, x: usize, y: usize, r: f64) {
         let x_f = (75 * x + 100) as f64;
         let y_f = (75 * y + 50) as f64;
@@ -47,15 +48,23 @@ impl Canvas {
     pub fn draw_circle_at(&self, fill_value: String, x: f64, y: f64, r: f64, text: Option<String>) {
         self.context.save();
         self.context.set_fill_style(&fill_value.into());
+        let strok: String = "black".to_string();
+        self.context.set_stroke_style(&strok.into());
         self.context.begin_path();
+
         let _ = self.context.arc(x, y, r, 0.0, 2.0 * PI);
         self.context.fill();
         self.context.restore();
 
-        // if let Some(s) = text {
-        //     self.context.set_text_align("center");
-        //     let _ = self.context.fill_text(&s, 25.0, y + 25.0);
-        // }
+        if let Some(s) = text {
+            self.context.set_font("bold 25px serif");
+            self.context.save();
+            let strok: String = "black".to_string();
+            self.context.set_fill_style(&strok.into());
+            self.context.begin_path();
+            let _ = self.context.fill_text(&s, x - 8.5, y + 8.0);
+            self.context.restore();
+        }
     }
 
     pub fn draw_mask(&self, fill_value: String, row: usize, col: usize, r: f64) {
@@ -103,14 +112,15 @@ pub fn display_text_on_canvas(id: String, text: String, color: String) {
     let x = bounding_rect.width() / 2.0;
     let y = bounding_rect.height() / 2.0;
     canvas.context.save();
-    canvas.context.begin_path();
-    canvas.context.stroke();
+    // canvas.context.begin_path();
     canvas.context.set_text_align("center");
     canvas.context.set_fill_style(&color.into());
     canvas.context.set_font("bold 35px serif");
     let _ = canvas
         .context
         .fill_text_with_max_width(&text, x, y, canvas.canvas.width().into());
+    // canvas.context.rect(0.0, 0.0, 400.0, 400.0);
+
     canvas.context.restore();
 }
 
@@ -148,6 +158,9 @@ pub fn animate(
     current_position: i64,
     fill_value: String,
     text: Option<String>,
+    is_win: bool,
+    is_draw: bool,
+    current_player_name: String,
 ) {
     let window = web_sys::window().unwrap();
 
@@ -164,8 +177,25 @@ pub fn animate(
             (current_position + 50) as f64,
             text.clone(),
         );
-
-        // TODO:clear the previous motion
+        if to_row * 75 == current_position {
+            log!("else in animation");
+            if is_win {
+                let win_string = format!(
+                    "{} wins! clicked board to restart",
+                    current_player_name.to_string()
+                );
+                display_text_on_canvas(canvas_id.clone(), win_string, "black".to_string());
+                // display_text_on_canvas(win_string);
+            } else {
+                if is_draw {
+                    display_text_on_canvas(
+                        canvas_id.clone(),
+                        "draw! click on board to restart the game".to_string(),
+                        "black".to_owned(),
+                    )
+                }
+            }
+        }
 
         let closure = Closure::wrap(Box::new(move || {
             animate(
@@ -175,6 +205,9 @@ pub fn animate(
                 current_position + 25,
                 fill_value.clone(),
                 text.clone(),
+                is_win,
+                is_draw,
+                current_player_name.clone(),
             )
         }) as Box<dyn FnMut()>);
 
