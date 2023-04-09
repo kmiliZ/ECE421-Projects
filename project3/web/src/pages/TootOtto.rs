@@ -51,15 +51,26 @@ pub enum Msg {
     SetPlayer1Name(String),
     SetPlayer2Name(String),
     InsertChip((usize, usize)),
-    Stop,
 }
 impl TootOtto {
-    fn check_win(&self) -> bool {
+    fn check_win_otto(&self) -> bool {
         log!("checking win...");
         if self.board.as_ref().borrow_mut().check_win_otto() {
             return true;
         }
         false
+    }
+
+    fn check_win_toot(&self) -> bool {
+        log!("checking win...");
+        if self.board.as_ref().borrow_mut().check_win_toot() {
+            return true;
+        }
+        false
+    }
+
+    fn check_win(&self) -> bool {
+        return self.check_win_otto() || self.check_win_toot();
     }
 
     fn check_draw(&self) -> bool {
@@ -84,8 +95,8 @@ impl TootOtto {
         self.canvas.as_ref().unwrap().clear_canvas();
     }
 
-    fn fill_text(&self, text: String) {
-        canvas_controller::fill_text(self.canvas_id.clone(), text, "black".to_owned())
+    fn display_text_on_canvas(&self, text: String) {
+        canvas_controller::display_text_on_canvas(self.canvas_id.clone(), text, "black".to_owned())
     }
 
     fn change_current_board_turn(&mut self) {
@@ -163,6 +174,7 @@ impl Component for TootOtto {
                             inserted_row as i64,
                             0,
                             color,
+                            Some("T".to_string()),
                         );
 
                         self.canvas.as_ref().unwrap().draw_circle(
@@ -180,12 +192,12 @@ impl Component for TootOtto {
                                     self.player2_name.clone()
                                 )
                             );
-                            self.fill_text(win_string);
+                            self.display_text_on_canvas(win_string);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
 
-                                canvas_controller::fill_text(
+                                canvas_controller::display_text_on_canvas(
                                     self.canvas_id.clone(),
                                     "draw! click on board to restart the game".to_string(),
                                     "black".to_owned(),
@@ -203,9 +215,6 @@ impl Component for TootOtto {
                 }
                 let link = ctx.link().clone();
                 link.send_message(Msg::Start);
-                return true;
-            }
-            Msg::Stop => {
                 return true;
             }
         }
@@ -280,22 +289,34 @@ impl Component for TootOtto {
             </div>
         }
 
+
             <div class="col-md-offset-4 col-md-8">
-                <form>
-                    <div class="col-md-offset-3 col-md-8">
-                        <input id="textbox1" type="text" placeholder="Player 1's Name"  disabled={self.is_active} onchange={on_dangerous_change_input1}/>
-                        <input id="textbox2" type="text" placeholder="Player 2's Name"  disabled={self.is_active} onchange ={on_dangerous_change_input2}/>
-                        <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
-                    </div>
-                </form>
-                <div  >
-                    <br/>
-
-                    <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
-                    <small>{"Disc Colors: "} {&self.player1_name} <b>{" - Red"}</b>    {" and "}    {&self.player2_name} <b>{" - Blue"}</b></small>
-
+            <form>
+                <div class="col-md-offset-3 col-md-8">
+                    <input id="textbox1" type="text" placeholder="Player 1's Name"  disabled={self.is_active} onchange={on_dangerous_change_input1}/>
+                    <input id="textbox2" type="text" placeholder="Player 2's Name"  disabled={self.is_active} onchange ={on_dangerous_change_input2}/>
+                    <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
                 </div>
+            </form>
+            if self.is_active {
+
+            <div  >
                 <br/>
+
+                <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
+                <small>{"Disc Colors: "} {&self.player1_name} <b>{" - Red"}</b>    {" and "}    {&self.player2_name} <b>{" - Blue"}</b></small>
+                <br/>
+                <form>
+                <h4>{"Select a Disc Type   :"}
+                  <input type="radio" name="choice" value="T" selected=true /> {"T"}
+                  <input type="radio" name="choice" value="O" selected=false />{"O"}
+
+           </h4>
+           </form>
+            </div>
+            <br/>
+            }
+
                 <canvas id={self.canvas_id.clone()} height="480" width="640"></canvas>
             </div>
         </div>

@@ -41,16 +41,21 @@ impl Canvas {
     pub fn draw_circle(&self, fill_value: String, x: usize, y: usize, r: f64) {
         let x_f = (75 * x + 100) as f64;
         let y_f = (75 * y + 50) as f64;
-        self.draw_circle_at(fill_value, x_f, y_f, r);
+        self.draw_circle_at(fill_value, x_f, y_f, r, None);
     }
 
-    pub fn draw_circle_at(&self, fill_value: String, x: f64, y: f64, r: f64) {
+    pub fn draw_circle_at(&self, fill_value: String, x: f64, y: f64, r: f64, text: Option<String>) {
         self.context.save();
         self.context.set_fill_style(&fill_value.into());
         self.context.begin_path();
         let _ = self.context.arc(x, y, r, 0.0, 2.0 * PI);
         self.context.fill();
         self.context.restore();
+
+        // if let Some(s) = text {
+        //     self.context.set_text_align("center");
+        //     let _ = self.context.fill_text(&s, 25.0, y + 25.0);
+        // }
     }
 
     pub fn draw_mask(&self, fill_value: String, row: usize, col: usize, r: f64) {
@@ -86,12 +91,12 @@ impl Canvas {
     }
 }
 
-pub fn draw_circle_at_canvas(id: String, fill_value: String, x: f64, y: f64) {
+pub fn draw_circle_at_canvas(id: String, fill_value: String, x: f64, y: f64, text: Option<String>) {
     let canvas = Canvas::new(id);
-    canvas.draw_circle_at(fill_value, x, y, 25.0);
+    canvas.draw_circle_at(fill_value, x, y, 25.0, text);
 }
 
-pub fn fill_text(id: String, text: String, color: String) {
+pub fn display_text_on_canvas(id: String, text: String, color: String) {
     let canvas = Canvas::new(id);
 
     let bounding_rect = canvas.canvas.get_bounding_client_rect();
@@ -142,6 +147,7 @@ pub fn animate(
     to_row: i64,
     current_position: i64,
     fill_value: String,
+    text: Option<String>,
 ) {
     let window = web_sys::window().unwrap();
 
@@ -156,6 +162,7 @@ pub fn animate(
             fill_value.clone(),
             (75 * column + 100) as f64,
             (current_position + 50) as f64,
+            text.clone(),
         );
 
         // TODO:clear the previous motion
@@ -167,6 +174,7 @@ pub fn animate(
                 to_row,
                 current_position + 25,
                 fill_value.clone(),
+                text.clone(),
             )
         }) as Box<dyn FnMut()>);
 
