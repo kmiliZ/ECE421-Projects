@@ -1,6 +1,6 @@
 use crate::pages::{
     connect4::Connect4, howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot,
-    mainPage::MainPage,
+    mainPage::MainPage, tootOtto::TootOtto,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -33,7 +33,7 @@ pub fn switch(routes: &Route) -> Html {
            <Connect4/>
         },
         Route::toot_otto => html! {
-            // <toot_otto::toot_otto />
+            <TootOtto/>
         },
         Route::connect4_computer => html! {
             // <connect4_computer::connect4_computer />

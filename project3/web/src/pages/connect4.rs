@@ -84,8 +84,8 @@ impl Connect4 {
         self.canvas.as_ref().unwrap().clear_canvas();
     }
 
-    fn fill_text(&self, text: String) {
-        canvas_controller::fill_text(self.canvas_id.clone(), text, "black".to_owned())
+    fn display_text_on_canvas(&self, text: String) {
+        canvas_controller::display_text_on_canvas(self.canvas_id.clone(), text, "black".to_owned())
     }
 
     fn change_current_board_turn(&mut self) {
@@ -163,6 +163,7 @@ impl Component for Connect4 {
                             inserted_row as i64,
                             0,
                             color,
+                            None,
                         );
 
                         self.canvas.as_ref().unwrap().draw_circle(
@@ -180,12 +181,12 @@ impl Component for Connect4 {
                                     self.player2_name.clone()
                                 )
                             );
-                            self.fill_text(win_string);
+                            self.display_text_on_canvas(win_string);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
 
-                                canvas_controller::fill_text(
+                                canvas_controller::display_text_on_canvas(
                                     self.canvas_id.clone(),
                                     "draw! click on board to restart the game".to_string(),
                                     "black".to_owned(),
@@ -288,13 +289,14 @@ impl Component for Connect4 {
                         <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
                     </div>
                 </form>
+                if self.is_active {
                 <div  >
                     <br/>
 
                     <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
                     <small>{"Disc Colors: "} {&self.player1_name} <b>{" - Red"}</b>    {" and "}    {&self.player2_name} <b>{" - Blue"}</b></small>
 
-                </div>
+                </div>}
                 <br/>
                 <canvas id={self.canvas_id.clone()} height="480" width="640"></canvas>
             </div>
