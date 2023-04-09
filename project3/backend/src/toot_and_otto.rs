@@ -9,12 +9,17 @@ pub struct Board {
     pub rows: usize,
     pub cols: usize,
     pub winner: String,
-    pub otto_player: String,
-    pub toot_player: String,
 }
 
 impl Board {
-    pub fn new(player1_name: String, player2_name: String, max_depth: u32, with_ai: bool, rows_input: usize, cols_input: usize, otto: String, toot: String) -> Board {
+    pub fn new(
+        player1_name: String,
+        player2_name: String,
+        max_depth: u32,
+        with_ai: bool,
+        rows_input: usize,
+        cols_input: usize,
+    ) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
             current_turn: player1_name.clone(),
@@ -26,10 +31,8 @@ impl Board {
             rows: rows_input,
             cols: cols_input,
             winner: String::new(),
-            otto_player: otto,
-            toot_player: toot,
         };
-        if with_ai{
+        if with_ai {
             board.player2 = "Computer".to_string();
             board.ai_playing = true;
         }
@@ -158,7 +161,7 @@ impl Board {
         false
     }
 
-    pub fn set_winner(&mut self, winner: String){
+    pub fn set_winner(&mut self, winner: String) {
         self.winner = winner;
     }
 }
@@ -182,7 +185,7 @@ impl Grid {
         grid
     }
 
-    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool{
+    pub fn insert_chip(&mut self, col: usize, grid_val: char) -> bool {
         // Iteratively go through each row in the column until you find the empty one starting from the bottom
         for row in (0..self.num_rows).rev() {
             match self.get(row, col) {
@@ -206,6 +209,4 @@ impl Grid {
     }
 }
 
-fn main() {
-
-}
+fn main() {}
