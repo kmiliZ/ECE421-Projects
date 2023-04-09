@@ -1,6 +1,6 @@
 use crate::pages::{
     connect4::Connect4, howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot,
-    mainPage::MainPage, tootOtto::TootOtto,
+    mainPage::MainPage, TootOtto::TootOtto,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;

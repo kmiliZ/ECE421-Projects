@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 //connect to mongodb
 
-mongoose.connect("mongodb://localhost:27017/Connect4DB");
+mongoose.connect("mongodb://127.0.0.1:27017/Connect4DB");
 require('./app_server/models/model.js');
 
 
