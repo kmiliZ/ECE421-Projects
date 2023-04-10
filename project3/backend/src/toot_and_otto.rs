@@ -291,8 +291,10 @@ impl Board {
                 if new_eval > eval {
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the computer win
                     if new_eval == 100{
                         best_move = 'T';
+                    // the player best move should be the opposite of the computer's best move
                     } else if best_move == 'T'{
                         best_move = 'O';
                     } else  {
@@ -313,8 +315,10 @@ impl Board {
                 if new_eval > eval{
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the computer win
                     if new_eval == 100{
                         best_move = 'O';
+                    // the player best move should be the opposite of the computer's best move
                     } else if best_move_found == 'T'{
                         best_move = 'O';
                     } else  {
@@ -349,9 +353,11 @@ impl Board {
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the player win
                     if new_eval == -100{
                         best_move = 'T';
                     } else if best_move == 'T'{
+                    // the computer best move should be the opposite of the player's best move
                         best_move = 'O';
                     } else  {
                         best_move = 'T';
@@ -371,8 +377,10 @@ impl Board {
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the player win
                     if new_eval == -100{
                         best_move = 'O';
+                    // the computer best move should be the opposite of the player's best move
                     } else if best_move == 'T'{
                         best_move = 'O';
                     } else  {
@@ -397,16 +405,6 @@ impl Board {
         }
     }
 
-    // The AI, will always give back the best move of the opposite player to win the game, so have to switch the T to an O and vice versa for the result
-    // Call this function when calling the AI to move
-    pub fn ai_move(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32, char){
-        let (pruning_value, best_col, best_move_found) = self.alpha_beta(player, i32::MIN, i32::MAX, ply, '_');
-        if best_move_found == 'T'{
-            return (pruning_value, best_col, 'O');
-        } else {
-            return (pruning_value, best_col, 'T');
-        }
-    }
 }
 
 pub struct Grid {

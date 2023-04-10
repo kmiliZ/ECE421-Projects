@@ -256,12 +256,6 @@ fn toot_and_otto_computer(player1_name: String, difficulty: u32){
             let (pruning_value, best_col, best_move_found) = board.alpha_beta(board.current_turn, i32::MIN, i32::MAX, board.ai_depth.try_into().unwrap(), '_');
             println!("best_col: {}", best_col);
             println!("best_move: {}", best_move_found);
-            /*
-            if best_move_found == 'T'{
-                board.grid.insert_chip(best_col.try_into().unwrap(), 'O');
-            } else {
-                board.grid.insert_chip(best_col.try_into().unwrap(), 'T');
-            }*/
             board.grid.insert_chip(best_col.try_into().unwrap(), best_move_found);
             
         }
@@ -448,16 +442,16 @@ fn main() {
                             toot_and_otto_computer(player1_name, 2);
                         }
                         2 => {
-                            toot_and_otto_computer(player1_name, 3);
-                        }
-                        3 => {
                             toot_and_otto_computer(player1_name, 4);
                         }
-                        4 => {
+                        3 => {
                             toot_and_otto_computer(player1_name, 5);
                         }
-                        5 => {
+                        4 => {
                             toot_and_otto_computer(player1_name, 6);
+                        }
+                        5 => {
+                            toot_and_otto_computer(player1_name, 7);
                         }
                         _ =>{
                             println!("Invalid option");
