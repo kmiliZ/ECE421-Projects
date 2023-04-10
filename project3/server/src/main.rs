@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
         .allow_credentials(true);
 
     // all routes are defined here
-    let app_router = warp::path!("app").and(dir("../web/dist"));
+    let app_router = warp::path!().and(dir("../web/dist"));
     let api_clear_router = warp::path!("api" / "clearallgames");
     let api_game_router = warp::path!("api" / "games");
     let api_game_router_id = warp::path!("api" / "games" / String);
