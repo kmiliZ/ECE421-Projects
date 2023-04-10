@@ -2,16 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::Serialize;
 use yew::prelude::*;
 use yew::{html, Component, Html};
-#[allow(non_snake_case)]
-#[derive(Debug)]
-pub struct GameResponse {
-    pub gameID: String,
-    pub gameType: String,
-    pub player1: String,
-    pub player2: String,
-    pub winner: String,
-    pub playedTime: DateTime<Utc>,
-}
+use common::GameResponse;
 
 #[allow(non_snake_case)]
 pub struct GameHistory {

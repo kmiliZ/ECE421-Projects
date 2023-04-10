@@ -15,14 +15,14 @@ pub struct GameModel {
     pub playedTime: DateTime<Utc>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct GenericResponse {
     pub status: String,
     pub message: String,
 }
 
 #[allow(non_snake_case)]
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 pub struct GameResponse {
     pub gameID: String,
     pub gameType: String,
@@ -32,18 +32,18 @@ pub struct GameResponse {
     pub playedTime: DateTime<Utc>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 pub struct GameData {
     pub game: GameResponse,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 pub struct SingleGameResponse {
     pub status: String,
     pub game: GameData,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 pub struct GameListResponse {
     pub status: String,
     pub results: usize,

@@ -3,6 +3,7 @@ use yew_router::prelude::*;
 mod controller;
 mod pages;
 mod router;
+mod api;
 use router::{switch, Route};
 // mod cell;
 // mod cell_toot;
