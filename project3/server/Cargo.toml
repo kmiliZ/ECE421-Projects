@@ -16,4 +16,9 @@ thiserror = "1.0.40"
 tokio = { version = "1.27.0", features = ["full"] }
 warp = "0.3.4"
 yew = "0.19.3"
-web = { path = "../web" }
+
+
+[lib]
+name = "server"
+path = "src/mod.rs"
+crate-type = ["lib"]
