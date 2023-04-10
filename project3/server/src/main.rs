@@ -63,9 +63,8 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(handler::delete_game_handler));
 
-    let static_files = warp::path("static").and(dir("../web/dist"));
+    let static_files = warp::path!("app").and(dir("../web/dist"));
     
-
     let routes = game_routes
     .with(warp::log("api"))
     .or(game_routes_id)
@@ -74,56 +73,9 @@ async fn main() -> Result<()> {
     .with(cors)
     .recover(error::handle_rejection);
 
-    // let mroutes = static_files
-    //     .or(routes)
-    //     .with(warp::cors().allow_any_origin())
-    //     .recover(error::handle_rejection);
-
-    warp::serve(routes).run(([0, 0, 0, 0], 6060)).await;
-
+    println!("🚀 Server started successfully");
+    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
     Ok(())
-
-    // let routes = game_routes
-    //     .with(warp::log("api"))
-    //     .or(game_routes_id)
-    //     .or(api_health_checker)
-    //     .or(static_files)
-    //     .with(cors)
-    //     .recover(error::handle_rejection);
-
-    // let addr = std::net::SocketAddr::from(([0, 0, 0, 0], 3000));
-    // let db_clone = db.clone();
-    // let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel::<()>();
-    // let server = warp::serve(routes);
-
-    // let server_task = tokio::task::spawn(async move {
-    //     server.bind(addr).await
-    // });
-
-    // let yew_task = tokio::task::spawn(async move {
-    //     yew::start_app::<web::App>();
-    // });
-
-    // tokio::select! {
-    //     _ = server_task => {},
-    //     _ = yew_task => {},
-    //     _ = shutdown_rx => {},
-    // }
-
-    // Ok(())
-
-
-
-    // let routes = game_routes
-    //     .with(warp::log("api"))
-    //     .or(game_routes_id)
-    //     .or(api_health_checker)
-    //     .with(cors)
-    //     .recover(error::handle_rejection);
-
-    // println!("🚀 Server started successfully");
-    // warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
-    // Ok(())
 }
 
 fn with_db(db: DB) -> impl Filter<Extract = (DB,), Error = Infallible> + Clone {
