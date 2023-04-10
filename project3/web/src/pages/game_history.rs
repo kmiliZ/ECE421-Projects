@@ -19,6 +19,7 @@ pub struct GameHistory {
 impl GameHistory {
     fn view_game_data(&self) -> Html {
         if let Some(ref games) = self.games {
+            log!("view data has data");
             return html! {
                 {
                    games.iter().enumerate().map(|(index,game)| {
@@ -29,7 +30,7 @@ impl GameHistory {
                         <td>{game.player1.as_str()}</td>
                         <td>{game.player2.as_str()}</td>
                         <td>{game.winner.as_str()}</td>
-                        <td>{game.playedTime.clone()}</td>
+                        <td>{game.playedTime.clone().naive_local()}</td>
                         </tr>
                     }
                    }).collect::<Html>()
@@ -55,6 +56,7 @@ impl Component for GameHistory {
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        log!("update!!");
         match msg {
             Msg::ReceivedGameData(games) => {
                 self.games = Some(games);

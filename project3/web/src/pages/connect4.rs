@@ -1,12 +1,16 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
+use crate::api;
 use backend::connect4::Board;
 use gloo::console::*;
+use std::clone;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
+use yew::html::Scope;
 use yew::virtual_dom::VNode;
+
 use yew::{events::Event, html, Component, Context};
 pub struct Connect4 {
     board: Rc<RefCell<Board>>,
@@ -51,6 +55,9 @@ pub enum Msg {
     SetPlayer1Name(String),
     SetPlayer2Name(String),
     InsertChip((usize, usize)),
+    PostGame,
+    PostOK,
+    PostError,
 }
 impl Connect4 {
     fn check_win(&self) -> bool {
@@ -167,9 +174,13 @@ impl Component for Connect4 {
                         );
                         if self.check_win() {
                             self.is_active = false;
+                            let link = ctx.link().clone();
+                            link.send_message(Msg::PostGame);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
+                                let link = ctx.link().clone();
+                                link.send_message(Msg::PostGame);
                             }
                         }
                         // change current turn here, both board and connect4
@@ -185,6 +196,33 @@ impl Component for Connect4 {
                 link.send_message(Msg::Start);
                 return true;
             }
+            Msg::PostGame => {
+                let mut winner = "";
+                match self.current_player {
+                    Player::Player1 => {
+                        winner = &self.player1_name;
+                    }
+                    Player::Player2 => {
+                        winner = &self.player2_name;
+                    }
+                }
+                let game_data = format!(
+                    r#"{{"gameType": "{}", "player1": "{}", "player2": "{}", "winner": "{}"}}"#,
+                    "Connect4",
+                    self.player1_name.clone(),
+                    self.player2_name.clone(),
+                    winner.clone()
+                );
+                ctx.link().send_future(async move {
+                    match api::api_create_game(&game_data.clone()).await {
+                        Ok(_games) => Msg::PostOK,
+                        Err(_err_str) => Msg::PostError,
+                    }
+                });
+                return false;
+            }
+            Msg::PostOK => false,
+            Msg::PostError => false,
         }
     }
     fn rendered(&mut self, ctx: &Context<Self>, _first_render: bool) {

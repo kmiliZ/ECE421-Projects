@@ -1,5 +1,6 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
+use crate::api;
 use backend::toot_and_otto::Board;
 use gloo::console::*;
 use std::{cell::RefCell, rc::Rc};
@@ -87,6 +88,9 @@ pub enum Msg {
     SetPlayer1Name(String),
     SetPlayer2Name(String),
     InsertChip((usize, usize)),
+    PostGame,
+    PostOK,
+    PostError,
 }
 impl TootOtto {
     fn check_win_otto(&self) -> bool {
@@ -223,9 +227,13 @@ impl Component for TootOtto {
 
                         if self.check_win() {
                             self.is_active = false;
+                            let link = ctx.link().clone();
+                            link.send_message(Msg::PostGame);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
+                                let link = ctx.link().clone();
+                                link.send_message(Msg::PostGame);
                             }
                         }
                         // change current turn here, both board and TootOtto
@@ -240,6 +248,33 @@ impl Component for TootOtto {
                 let link = ctx.link().clone();
                 link.send_message(Msg::Start);
                 return true;
+            }
+            Msg::PostOK => false,
+            Msg::PostError => false,
+            Msg::PostGame => {
+                let mut winner = "";
+                match self.current_player {
+                    Player::Player1 => {
+                        winner = &self.player1_name;
+                    }
+                    Player::Player2 => {
+                        winner = &self.player2_name;
+                    }
+                }
+                let game_data = format!(
+                    r#"{{"gameType": "{}", "player1": "{}", "player2": "{}", "winner": "{}"}}"#,
+                    "Connect4",
+                    self.player1_name.clone(),
+                    self.player2_name.clone(),
+                    winner.clone()
+                );
+                ctx.link().send_future(async move {
+                    match api::api_create_game(&game_data.clone()).await {
+                        Ok(_games) => Msg::PostOK,
+                        Err(_err_str) => Msg::PostError,
+                    }
+                });
+                return false;
             }
         }
     }
