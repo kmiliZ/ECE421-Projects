@@ -33,6 +33,8 @@ async fn main() -> Result<()> {
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
 
+    // all routes are defined here
+    let app_router = warp::path!("app").and(dir("../web/dist"));
     let api_clear_router = warp::path!("api" / "clearallgames");
     let api_game_router = warp::path!("api" / "games");
     let api_game_router_id = warp::path!("api" / "games" / String);
@@ -67,14 +69,13 @@ async fn main() -> Result<()> {
             .and(warp::delete())
             .and(with_db(db.clone()))
             .and_then(handler::delete_game_handler));
-
-    let static_files = warp::path!("app").and(dir("../web/dist"));
     
+    // adding middleware for error handling
     let routes = game_routes
     .with(warp::log("api"))
     .or(game_routes_id)
     .or(api_health_checker)
-    .or(static_files)
+    .or(app_router)
     .with(cors)
     .recover(error::handle_rejection);
 
