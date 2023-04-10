@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use server::handler;
 use yew::prelude::*;
 use yew::{html, Component, Html};
 #[allow(non_snake_case)]
