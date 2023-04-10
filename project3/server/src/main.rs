@@ -5,6 +5,7 @@ mod db;
 mod error;
 mod handler;
 mod schema;
+mod model;
 
 use futures::future::ok;
 
