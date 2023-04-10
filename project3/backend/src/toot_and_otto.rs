@@ -132,7 +132,6 @@ impl Board {
                 {
                     self.set_winner(self.player2.clone());
                     self.state = State::Done;
-                    println!("HOORIZONTAL WIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIN");
                     return true;
                 }
             }
@@ -227,12 +226,12 @@ impl Board {
         if self.check_win_toot() {
             self.winner.clear();
             self.state = State::Running;
-            return 100;
+            return -100;
         // Computer won
         } else if self.check_win_otto() {
             self.winner.clear();
             self.state = State::Running;
-            return -100;
+            return 100;
         } else {
             // Should never reach here
             return 0;
@@ -284,21 +283,15 @@ impl Board {
 
             // go through all available moves
             for col in self.get_legal_moves() {
-                println!("COMPUTER COL: {}", col);
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
                 let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
 
                 // if the result found a better col, then replace
-                if new_eval > eval || new_eval == -100 {
-                    println!("AAAAAAAA best_move: {}", best_move_found);
-                    println!("best col: {}", col);
-                    println!("ply: {}", ply);
-                    println!("new eval: {}", new_eval);
-                    println!();
+                if new_eval > eval {
                     eval = new_eval;
                     optimal_move = col;
-                    if new_eval == -100{
+                    if new_eval == 100{
                         best_move = 'T';
                     } else if best_move == 'T'{
                         best_move = 'O';
@@ -317,15 +310,10 @@ impl Board {
                 let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'O');
 
                 // if the result found a better col, then replace
-                if new_eval > eval || new_eval == -100{
-                    println!("BBBBBBBBBBBBBB best_move: {}", best_move_found);
-                    println!("best col: {}", col);
-                    println!("ply: {}", ply);
-                    println!("new eval: {}", new_eval);
-                    println!();
+                if new_eval > eval{
                     eval = new_eval;
                     optimal_move = col;
-                    if new_eval == -100{
+                    if new_eval == 100{
                         best_move = 'O';
                     } else if best_move_found == 'T'{
                         best_move = 'O';
@@ -343,8 +331,6 @@ impl Board {
                 // update alpha
                 alpha = alpha.max(eval);
             }
-            println!("BEST FUCKING MOVE: {}", best_move);
-            println!("BEST FUCKING COL: {}", optimal_move);
             return (eval, optimal_move.try_into().unwrap(), best_move);
         }
         // maximize player
@@ -361,14 +347,9 @@ impl Board {
 
                 // if the result found a better col, then replace
                 if new_eval < eval {
-                    println!("CCCCCCCCCCCCCCC best_move: {}", best_move_found);
-                    println!("best col: {}", col);
-                    println!("ply: {}", ply);
-                    println!("new eval: {}", new_eval);
-                    println!();
                     eval = new_eval;
                     optimal_move = col;
-                    if new_eval == 100{
+                    if new_eval == -100{
                         best_move = 'T';
                     } else if best_move == 'T'{
                         best_move = 'O';
@@ -388,14 +369,9 @@ impl Board {
 
                 // if the result found a better col, then replace
                 if new_eval < eval {
-                    println!("DDDDDDDDDDDDDDDDDDD best_move: {}", best_move_found);
-                    println!("best col: {}", col);
-                    println!("ply: {}", ply);
-                    println!("new eval: {}", new_eval);
-                    println!();
                     eval = new_eval;
                     optimal_move = col;
-                    if new_eval == 100{
+                    if new_eval == -100{
                         best_move = 'O';
                     } else if best_move == 'T'{
                         best_move = 'O';
