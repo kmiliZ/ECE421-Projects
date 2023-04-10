@@ -258,16 +258,20 @@ impl Board {
             }
         }
     }
-    /*
-    //https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
+    
+    // https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
     // For explaining minimax and alpha beta pruning.
-    pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32) {
+    // Returns the move value, best column, and the best character
+    // When calling alpha_beta for the first time, set last_move = '_'
+    pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32, last_move: char) -> (i32, i32, char) {
+        // best move defaulted to O
+        let mut best_move = 'O';
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
-            return (self.game_value(), 0);
+            return (self.game_value(), 0, last_move);
         } else if ply == 0 {
             // here the algorithm has run out of depth, which was set by the difficulty
-            return (0, 0);
+            return (0, 0, last_move);
         }
 
         let mut optimal_move = 0;
@@ -279,15 +283,47 @@ impl Board {
 
             // go through all available moves
             for col in self.get_legal_moves() {
-
-                self.grid.insert_chip(col, player);
+                self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _) = self.alpha_beta('X', alpha, beta, ply - 1);
+                let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
 
                 // if the result found a better col, then replace
                 if new_eval > eval {
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the computer win
+                    if new_eval == 100{
+                        best_move = 'T';
+                    // the player best move should be the opposite of the computer's best move
+                    } else if best_move == 'T'{
+                        best_move = 'O';
+                    } else  {
+                        best_move = 'T';
+                    }
+                }
+                // undo the move to go back to original
+                self.undo_move(col);
+
+                // update alpha
+                alpha = alpha.max(eval);
+
+                self.grid.insert_chip(col, 'O');
+                // search at 1 more depth using recursion
+                let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'O');
+
+                // if the result found a better col, then replace
+                if new_eval > eval{
+                    eval = new_eval;
+                    optimal_move = col;
+                    // the move just given let the computer win
+                    if new_eval == 100{
+                        best_move = 'O';
+                    // the player best move should be the opposite of the computer's best move
+                    } else if best_move_found == 'T'{
+                        best_move = 'O';
+                    } else  {
+                        best_move = 'T';
+                    }
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
@@ -299,24 +335,56 @@ impl Board {
                 // update alpha
                 alpha = alpha.max(eval);
             }
-            return (eval, optimal_move.try_into().unwrap());
+            return (eval, optimal_move.try_into().unwrap(), best_move);
         }
         // maximize player
-        else if player == 'X' {
+        else if player == 'T' {
             // start at the worst case eval for the minimizing player
             let mut eval = i32::MAX; 
 
             // go through all available moves
             for col in self.get_legal_moves() {
 
-                self.grid.insert_chip(col, player);
+                self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _) = self.alpha_beta('O', alpha, beta, ply - 1);
+                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
+                // if the result found a better col, then replace
+                if new_eval < eval {
+                    eval = new_eval;
+                    optimal_move = col;
+                    // the move just given let the player win
+                    if new_eval == -100{
+                        best_move = 'T';
+                    } else if best_move == 'T'{
+                    // the computer best move should be the opposite of the player's best move
+                        best_move = 'O';
+                    } else  {
+                        best_move = 'T';
+                    }
+                }
+                // undo the move to go back to original
+                self.undo_move(col);
+
+                // update beta
+                beta = beta.min(eval);
+
+                self.grid.insert_chip(col, 'O');
+                // search at 1 more depth using recursion
+                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'O');
 
                 // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
+                    // the move just given let the player win
+                    if new_eval == -100{
+                        best_move = 'O';
+                    // the computer best move should be the opposite of the player's best move
+                    } else if best_move == 'T'{
+                        best_move = 'O';
+                    } else  {
+                        best_move = 'T';
+                    }
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
@@ -327,13 +395,15 @@ impl Board {
                 }
                 // update beta
                 beta = beta.min(eval);
+
             }
-            return (eval, optimal_move.try_into().unwrap());
+            return (eval, optimal_move.try_into().unwrap(), best_move);
         } else {
-            //Shoould never reach here
-            return (0, 0);
+            //Should never reach here
+            return (0, 0, best_move);
         }
-    }*/
+    }
+
 }
 
 pub struct Grid {
