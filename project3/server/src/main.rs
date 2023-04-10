@@ -13,7 +13,7 @@ use db::DB;
 use dotenv::dotenv;
 use schema::FilterOptions;
 use std::convert::Infallible;
-use warp::{fs::dir, http::Method, Filter, Rejection};
+use warp::{fs::dir, http::Method, Filter, Rejection, hyper::header};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
@@ -28,20 +28,25 @@ async fn main() -> Result<()> {
     let db = DB::init().await?;
 
     let cors = warp::cors()
-        .allow_methods(&[Method::GET, Method::POST, Method::PATCH, Method::DELETE])
+        .allow_credentials(true)
+        .allow_methods(&[Method::OPTIONS, Method::GET, Method::POST, Method::PATCH, Method::DELETE])
         // .allow_origins(vec!["http://localhost:3000"])
         .allow_any_origin()
-        .allow_headers(vec!["content-type"])
+        .allow_headers(vec![header::CONTENT_TYPE, header::ACCEPT])
+        .expose_headers(vec![header::LINK])
         .allow_credentials(true);
 
     // all routes are defined here
-    let app_router = warp::path!().and(dir("../web/dist"));
+    
     let api_clear_router = warp::path!("api" / "clearallgames");
     let api_game_router = warp::path!("api" / "games");
     let api_game_router_id = warp::path!("api" / "games" / String);
+
     let api_health_checker = warp::path!("api" / "healthchecker")
         .and(warp::get())
         .and_then(handler::health_checker_handler);
+
+    let app_router = warp::get().and(warp::fs::dir("../web/dist"));
 
     let game_routes = api_game_router
         .and(warp::post())
@@ -81,7 +86,7 @@ async fn main() -> Result<()> {
         .recover(error::handle_rejection);
 
     println!("🚀 Server started successfully");
-    warp::serve(routes).run(([0, 0, 0, 0], 8888)).await;
+    warp::serve(routes).run(([127, 0, 0, 1], 8888)).await;
     Ok(())
 }
 
