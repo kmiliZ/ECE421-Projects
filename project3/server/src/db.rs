@@ -1,6 +1,6 @@
 // https://codevoweb.com/build-a-crud-api-with-rust-and-mongodb/
 // use crate::response::{GameData, GameListResponse, GameResponse, SingleGameResponse};
-use crate::{error::Error::*, schema::CreateGameSchema, Result};
+use crate::{error::Error::*, schema::CreateGameSchema, Result, model::GameModel};
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson::{doc, oid::ObjectId, Document};

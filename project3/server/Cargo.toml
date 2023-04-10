@@ -18,6 +18,7 @@ warp = "0.3.4"
 yew = "0.19.3"
 common = { version = "0.1.0", path = "../common" }
 
+
 [lib]
 name = "server"
 path = "src/mod.rs"
