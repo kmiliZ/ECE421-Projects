@@ -4,8 +4,8 @@
 mod db;
 mod error;
 mod handler;
-mod schema;
 mod model;
+mod schema;
 
 use futures::future::ok;
 
@@ -13,7 +13,7 @@ use db::DB;
 use dotenv::dotenv;
 use schema::FilterOptions;
 use std::convert::Infallible;
-use warp::{http::Method, Filter, Rejection, fs::dir};
+use warp::{fs::dir, http::Method, Filter, Rejection};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
@@ -63,25 +63,25 @@ async fn main() -> Result<()> {
             .and_then(handler::delete_all_games_handler));
 
     let game_routes_id = api_game_router_id
-            .and(warp::get())
-            .and(with_db(db.clone()))
-            .and_then(handler::get_game_handler)
+        .and(warp::get())
+        .and(with_db(db.clone()))
+        .and_then(handler::get_game_handler)
         .or(api_game_router_id
             .and(warp::delete())
             .and(with_db(db.clone()))
             .and_then(handler::delete_game_handler));
-    
+
     // adding middleware for error handling
     let routes = game_routes
-    .with(warp::log("api"))
-    .or(game_routes_id)
-    .or(api_health_checker)
-    .or(app_router)
-    .with(cors)
-    .recover(error::handle_rejection);
+        .with(warp::log("api"))
+        .or(game_routes_id)
+        .or(api_health_checker)
+        .or(app_router)
+        .with(cors)
+        .recover(error::handle_rejection);
 
     println!("🚀 Server started successfully");
-    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], 8888)).await;
     Ok(())
 }
 

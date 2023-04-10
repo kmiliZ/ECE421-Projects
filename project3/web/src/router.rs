@@ -1,6 +1,6 @@
 use crate::pages::{
-    connect4::Connect4, howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot,
-    mainPage::MainPage, TootOtto::TootOtto,
+    connect4::Connect4, game_history::GameHistory, howToPlayConnect4::HowToPlayConnect4,
+    howToPlayTooT::HowToPlayToot, mainPage::MainPage, TootOtto::TootOtto,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -15,7 +15,7 @@ pub enum Route {
     connect4_computer,
     #[at("/toot_otto_computer")]
     toot_otto_computer,
-    #[at("/ganme_history")]
+    #[at("/game_history")]
     game_history,
     #[at("/scoreboard")]
     scoreboard,
@@ -42,7 +42,7 @@ pub fn switch(routes: &Route) -> Html {
             // <toot_otto_computer::toot_otto_computer />
         },
         Route::game_history => html! {
-            // <game_history::game_history />
+            <GameHistory/>
         },
         Route::scoreboard => html! {
             // <scoreboard::ScoreBoard />

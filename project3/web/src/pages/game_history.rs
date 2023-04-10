@@ -1,8 +1,15 @@
+use crate::api;
 use chrono::{DateTime, Utc};
+use common::GameResponse;
+use gloo::console::*;
 use serde::Serialize;
 use yew::prelude::*;
 use yew::{html, Component, Html};
-use common::GameResponse;
+
+pub enum Msg {
+    ReceivedGameData(Vec<GameResponse>),
+    ErrorReceiveGameData(String),
+}
 
 #[allow(non_snake_case)]
 pub struct GameHistory {
@@ -34,18 +41,30 @@ impl GameHistory {
 }
 
 impl Component for GameHistory {
-    type Message = ();
+    type Message = Msg;
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        // ctx.link().send_future(asyn {
-        //     match handler::g
-        // })
+        ctx.link().send_future(async {
+            match api::api_fetch_all_games().await {
+                Ok(games) => Msg::ReceivedGameData(games),
+                Err(err_str) => Msg::ErrorReceiveGameData(err_str),
+            }
+        });
         GameHistory { games: None }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        return true;
+        match msg {
+            Msg::ReceivedGameData(games) => {
+                self.games = Some(games);
+                return true;
+            }
+            Msg::ErrorReceiveGameData(err_str) => {
+                log!(err_str);
+                return false;
+            }
+        }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
