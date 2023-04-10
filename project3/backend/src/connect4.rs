@@ -263,7 +263,7 @@ impl Board {
 
     //https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
     // For explaining minimax and alpha beta pruning.
-
+    // Returns the move value, and the best column
     pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32) {
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
