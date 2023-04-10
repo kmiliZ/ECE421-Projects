@@ -1,10 +1,10 @@
 use crate::{
     db::DB,
-    response::GenericResponse,
     schema::{CreateGameSchema, FilterOptions},
     WebResult,
 };
 use warp::{http::StatusCode, reject, reply::json, reply::with_status, Reply};
+use common::GenericResponse;
 
 pub async fn health_checker_handler() -> WebResult<impl Reply> {
     const MESSAGE: &str = "Build CRUD API with Rust and MongoDB";

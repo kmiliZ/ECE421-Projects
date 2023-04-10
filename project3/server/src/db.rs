@@ -1,12 +1,13 @@
 // https://codevoweb.com/build-a-crud-api-with-rust-and-mongodb/
-use crate::response::{GameData, GameListResponse, GameResponse, SingleGameResponse};
-use crate::{error::Error::*, model::GameModel, schema::CreateGameSchema, Result};
+// use crate::response::{GameData, GameListResponse, GameResponse, SingleGameResponse};
+use crate::{error::Error::*, schema::CreateGameSchema, Result};
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson::{doc, oid::ObjectId, Document};
 use mongodb::options::{FindOneAndUpdateOptions, FindOptions, IndexOptions, ReturnDocument};
 use mongodb::{bson, options::ClientOptions, Client, Collection, IndexModel};
 use std::str::FromStr;
+use common::*;
 
 #[derive(Clone, Debug)]
 pub struct DB {

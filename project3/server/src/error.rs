@@ -4,7 +4,7 @@ use std::convert::Infallible;
 use thiserror::Error;
 use warp::{http::StatusCode, reply, Rejection, Reply};
 
-use crate::response::GenericResponse;
+use common::GenericResponse;
 
 #[derive(Error, Debug)]
 pub enum Error {

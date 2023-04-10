@@ -1,13 +1,13 @@
+// https://blog.logrocket.com/full-stack-rust-a-complete-tutorial-with-examples/
+// https://codevoweb.com/build-a-crud-api-with-rust-and-mongodb/
 mod db;
 mod error;
 mod handler;
-mod model;
-mod response;
 mod schema;
 
 use futures::future::ok;
-use web;
 
+use web;
 use db::DB;
 use dotenv::dotenv;
 use schema::FilterOptions;
@@ -63,24 +63,25 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(handler::delete_game_handler));
 
-    let static_files = warp::path("static").and(dir("web/dist"));
+    let static_files = warp::path("static").and(dir("../web/dist"));
     
 
-    // let routes = game_routes
-    // .with(warp::log("api"))
-    // .or(game_routes_id)
-    // .or(api_health_checker)
-    // .with(cors)
-    // .recover(error::handle_rejection);
+    let routes = game_routes
+    .with(warp::log("api"))
+    .or(game_routes_id)
+    .or(api_health_checker)
+    .or(static_files)
+    .with(cors)
+    .recover(error::handle_rejection);
 
     // let mroutes = static_files
     //     .or(routes)
     //     .with(warp::cors().allow_any_origin())
     //     .recover(error::handle_rejection);
 
-    // warp::serve(mroutes).run(([0, 0, 0, 0], 8080)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], 6060)).await;
 
-    // Ok(())
+    Ok(())
 
     // let routes = game_routes
     //     .with(warp::log("api"))
@@ -113,16 +114,16 @@ async fn main() -> Result<()> {
 
 
 
-    let routes = game_routes
-        .with(warp::log("api"))
-        .or(game_routes_id)
-        .or(api_health_checker)
-        .with(cors)
-        .recover(error::handle_rejection);
+    // let routes = game_routes
+    //     .with(warp::log("api"))
+    //     .or(game_routes_id)
+    //     .or(api_health_checker)
+    //     .with(cors)
+    //     .recover(error::handle_rejection);
 
-    println!("🚀 Server started successfully");
-    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
-    Ok(())
+    // println!("🚀 Server started successfully");
+    // warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
+    // Ok(())
 }
 
 fn with_db(db: DB) -> impl Filter<Extract = (DB,), Error = Infallible> + Clone {
