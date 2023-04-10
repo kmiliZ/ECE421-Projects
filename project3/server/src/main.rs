@@ -1,5 +1,6 @@
 // https://blog.logrocket.com/full-stack-rust-a-complete-tutorial-with-examples/
 // https://codevoweb.com/build-a-crud-api-with-rust-and-mongodb/
+// testing in windows: Invoke-WebRequest -Uri "http://localhost:8080/api/games" -ContentType "application/json" -Method POST -Body '{"gameType": "Mario", "player1": "p1", "player2": "p2", "winner": "p1"}'
 mod db;
 mod error;
 mod handler;
@@ -7,7 +8,6 @@ mod schema;
 
 use futures::future::ok;
 
-use web;
 use db::DB;
 use dotenv::dotenv;
 use schema::FilterOptions;
@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
 
+    let api_clear_router = warp::path!("api" / "clearallgames");
     let api_game_router = warp::path!("api" / "games");
     let api_game_router_id = warp::path!("api" / "games" / String);
     let api_health_checker = warp::path!("api" / "healthchecker")
@@ -52,7 +53,11 @@ async fn main() -> Result<()> {
             .and(warp::get())
             .and(warp::query::<FilterOptions>())
             .and(with_db(db.clone()))
-            .and_then(handler::games_list_handler));
+            .and_then(handler::games_list_handler))
+        .or(api_clear_router
+            .and(warp::delete())
+            .and(with_db(db.clone()))
+            .and_then(handler::delete_all_games_handler));
 
     let game_routes_id = api_game_router_id
             .and(warp::get())

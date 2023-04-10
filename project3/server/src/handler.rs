@@ -72,3 +72,18 @@ pub async fn delete_game_handler(id: String, db: DB) -> WebResult<impl Reply> {
 
     Ok(with_status(json(&""), StatusCode::NO_CONTENT))
 }
+
+pub async fn delete_all_games_handler(db: DB) -> WebResult<impl Reply> {
+    let result = db.delete_all_games().await.map_err(|e| reject::custom(e))?;
+
+    let error_response = GenericResponse {
+        status: "fail".to_string(),
+        message: format!("Game not found"),
+    };
+
+    if result.is_none() {
+        return Ok(with_status(json(&error_response), StatusCode::NOT_FOUND));
+    }
+
+    Ok(with_status(json(&""), StatusCode::NO_CONTENT))
+}

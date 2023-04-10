@@ -192,4 +192,18 @@ impl DB {
 
         Ok(Some(()))
     }
+
+    pub async fn delete_all_games(&self) -> Result<Option<()>> {
+        let result = self
+            .collection
+            .delete_many(doc!{}, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        if result.deleted_count == 0 {
+            return Ok(None);
+        }
+
+        Ok(Some(()))
+    }
 }

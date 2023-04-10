@@ -1705,7 +1705,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "warp",
- "web",
  "yew",
 ]
 
