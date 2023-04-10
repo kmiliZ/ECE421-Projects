@@ -348,7 +348,6 @@ impl Board {
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
                 let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
-
                 // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;

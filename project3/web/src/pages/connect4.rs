@@ -51,7 +51,6 @@ pub enum Msg {
     SetPlayer1Name(String),
     SetPlayer2Name(String),
     InsertChip((usize, usize)),
-    Stop,
 }
 impl Connect4 {
     fn check_win(&self) -> bool {
@@ -82,10 +81,6 @@ impl Connect4 {
 
     fn clear_canvas(&mut self) {
         self.canvas.as_ref().unwrap().clear_canvas();
-    }
-
-    fn fill_text(&self, text: String) {
-        canvas_controller::fill_text(self.canvas_id.clone(), text, "black".to_owned())
     }
 
     fn change_current_board_turn(&mut self) {
@@ -147,13 +142,7 @@ impl Component for Connect4 {
                         .borrow_mut()
                         .grid
                         .insert_chip(col, self.current_player.to_char().clone());
-                    // log!(
-                    //     "=>inserted row number: ",
-                    //     inserted_row,
-                    //     "for player",
-                    //     self.current_player
-                    //         .to_string("player 1".to_string(), "player 2".to_string())
-                    // );
+
                     let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
                         log!("draw chip");
@@ -163,6 +152,11 @@ impl Component for Connect4 {
                             inserted_row as i64,
                             0,
                             color,
+                            None,
+                            self.check_win(),
+                            self.check_draw(),
+                            self.current_player
+                                .to_string(self.player1_name.clone(), self.player2_name.clone()),
                         );
 
                         self.canvas.as_ref().unwrap().draw_circle(
@@ -173,23 +167,9 @@ impl Component for Connect4 {
                         );
                         if self.check_win() {
                             self.is_active = false;
-                            let win_string = format!(
-                                "{} wins! clicked board to restart",
-                                self.current_player.to_string(
-                                    self.player1_name.clone(),
-                                    self.player2_name.clone()
-                                )
-                            );
-                            self.fill_text(win_string);
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
-
-                                canvas_controller::fill_text(
-                                    self.canvas_id.clone(),
-                                    "draw! click on board to restart the game".to_string(),
-                                    "black".to_owned(),
-                                )
                             }
                         }
                         // change current turn here, both board and connect4
@@ -203,9 +183,6 @@ impl Component for Connect4 {
                 }
                 let link = ctx.link().clone();
                 link.send_message(Msg::Start);
-                return true;
-            }
-            Msg::Stop => {
                 return true;
             }
         }
@@ -288,7 +265,7 @@ impl Component for Connect4 {
                         <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
                     </div>
                 </form>
-                <div  >
+                <div >
                     <br/>
 
                     <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>

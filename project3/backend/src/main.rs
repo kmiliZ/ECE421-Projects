@@ -1,6 +1,8 @@
 mod connect4;
 mod toot_and_otto;
 use crate::connect4::State;
+
+use crate::toot_and_otto::State as OtherState;
 use std::io;
 
 use crate::toot_and_otto::State as OtherState;
@@ -25,17 +27,90 @@ fn connect4_2_player(player1_name: String, player2_name: String) {
 
         // Getting input from user
         while true {
-
             let mut col = get_input(1, board.cols.try_into().unwrap());
 
-            if board.grid.insert_chip(col - 1, board.current_turn) != -1{
-
+            if board.grid.insert_chip(col - 1, board.current_turn) != -1 {
                 break;
             };
             println!("That column is full");
         }
 
         // Checking for win or draw
+        if board.check_win() {
+            println!("{} wins", board.winner);
+            board.display();
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+        } else if board.check_draw() {
+            println!("Game has ended in a draw!");
+            board.display();
+
+            println!("Play again?");
+            let mut selection = String::new();
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Did not enter a correct string");
+
+            if selection.trim() == "y" || selection.trim() == "yes" {
+                board.restart();
+            }
+        // Switches turns if there is no win or draw
+        } else {
+            if board.current_turn == 'X' {
+                board.current_turn = 'O';
+            } else {
+                board.current_turn = 'X';
+            }
+        }
+    }
+}
+
+fn connect4_computer(player1_name: String, difficulty: i32) {
+    use std::io::{stdin, stdout, Write};
+    let mut board = connect4::Board::new(
+        player1_name.trim().to_string(),
+        "Computer".to_string(),
+        difficulty,
+        true,
+        6,
+        7,
+    );
+
+    while board.state == State::Running {
+        board.display();
+
+        if board.current_turn == 'X' {
+            // Player turn
+            println!("{}'s turn", board.player1);
+            println!("Enter column (1-{}): ", board.cols);
+
+            while true {
+                let mut col = get_input(1, board.cols.try_into().unwrap());
+
+                if board.grid.insert_chip(col - 1, board.current_turn) != -1 {
+                    break;
+                };
+                println!("That column is full");
+            }
+        } else {
+            // Computer's turn
+            println!("{}'s turn", board.player2);
+            let (pruning_value, best_col) =
+                board.alpha_beta(board.current_turn, i32::MIN, i32::MAX, board.ai_depth);
+            board
+                .grid
+                .insert_chip(best_col.try_into().unwrap(), board.current_turn);
+        }
+
+        // Checking for wins or draw
         if board.check_win() {
             println!("{} wins", board.winner);
             board.display();
@@ -126,7 +201,7 @@ fn connect4_computer(player1_name: String, difficulty: i32) {
                 board.restart();
             }
         } else {
-        // Switching turns if the there is no win or draw
+            // Switching turns if the there is no win or draw
             if board.current_turn == 'X' {
                 board.current_turn = 'O';
             } else {
@@ -140,14 +215,14 @@ fn connect4_computer(player1_name: String, difficulty: i32) {
 }
 
 fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
-    use std::io::{stdin,stdout,Write};
+    use std::io::{stdin, stdout, Write};
     let mut board = toot_and_otto::Board::new(player1_name, player2_name, 0, false, 6, 7);
 
     while board.state == toot_and_otto::State::Running {
         board.display();
 
         // Checking who's turn it is
-        if board.current_turn == 'T'{
+        if board.current_turn == 'T' {
             println!("{}'s turn", board.player1);
         } else {
             println!("{}'s turn", board.player2);
@@ -157,6 +232,7 @@ fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
         // Getting input from user
         while true {
             let mut col = get_input(1, board.cols.try_into().unwrap());
+            println!("col: {}", col);
 
             println!("Would you like to insert: ");
             println!("1. T");
@@ -173,7 +249,7 @@ fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
             }
 
             // Inserting the token into the grid
-            if board.grid.insert_chip(col - 1, insert) != -1{
+            if board.grid.insert_chip(col - 1, insert) != -1 {
                 break;
             };
             println!("That column is full");
@@ -191,7 +267,6 @@ fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
             if selection.trim() == "y" || selection.trim() == "yes" {
                 board.restart();
             }
-
         } else if board.check_draw() {
             println!("Game has ended in a draw!");
             board.display();
@@ -321,7 +396,6 @@ fn get_input(lower_bound: usize, upper_bound: usize) -> usize{
         }
     }
     temp
-
 }
 
 fn main() {
@@ -340,11 +414,9 @@ fn main() {
             println!("1. Computer");
             println!("2. Another Player");
 
-
              // Get the user's choice2
             let mut choice2 = get_input(1, 2);
             
-
 
             match choice2 {
                 1 => {
@@ -383,7 +455,6 @@ fn main() {
                             return;
                         }
                     }
-
                 }
                 2 => {
                     println!("Please enter player 1's name: ");
@@ -418,7 +489,6 @@ fn main() {
              // Get the user's choice
             let mut choice2 = get_input(1, 2);
             
-
 
             match choice2 {
                 1 => {

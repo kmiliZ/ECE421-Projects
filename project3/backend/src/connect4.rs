@@ -174,7 +174,6 @@ impl Board {
                 {
 
                     self.set_winner(self.player2.clone());
-
                     self.state = State::Done;
                     return true;
                 }
