@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+    "backend",
+    "web",
+    "server",
+
+    #Internal
+    "common"
+]
