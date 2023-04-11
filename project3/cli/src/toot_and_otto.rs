@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 #[derive(PartialEq)]
 pub enum State {
     Done,
@@ -249,6 +251,21 @@ impl Board {
         moves
     }
 
+    // Returns a random move available on the board
+    pub fn get_random_move(&self) -> usize {
+        let mut moves = Vec::new();
+        for col in 0..self.cols {
+            if self.grid.get(0, col) == '_' {
+                moves.push(col);
+            }
+        }
+        if let Some(next_move) = moves.choose(&mut rand::thread_rng()) {
+            return *next_move;
+        } else {
+            return 0;
+        }
+    }
+
     // Removes the last piece dropped at a specified column
     pub fn undo_move(&mut self, col: usize) {
         for row in 0..self.rows {
@@ -257,6 +274,25 @@ impl Board {
                 break;
             }
         }
+    }
+
+    pub fn random_walk(&mut self, last_move: char) -> (i32, i32, char) {
+        // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
+        if self.is_terminal() {
+            return (self.game_value(), 0, last_move);
+        }
+
+        let chips = vec!['T', 'O'];
+        let mut chip = 'T';
+        
+        let col = self.get_random_move();
+        if let Some(c) = chips.choose(&mut rand::thread_rng()) {
+            chip = *c;
+        };
+        self.grid.insert_chip(col, chip);
+        let (eval, _, _)= self.random_walk(chip);
+        self.undo_move(col);
+        return (eval/2, col.try_into().unwrap(), chip)
     }
     
     // https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
@@ -271,7 +307,7 @@ impl Board {
             return (self.game_value(), 0, last_move);
         } else if ply == 0 {
             // here the algorithm has run out of depth, which was set by the difficulty
-            return (0, 0, last_move);
+            return (0, 0, last_move);;
         }
 
         let mut optimal_move = 0;
@@ -285,7 +321,7 @@ impl Board {
             for col in self.get_legal_moves() {
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
+                let (new_eval, _, _) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
 
                 // if the result found a better col, then replace
                 if new_eval > eval {
@@ -347,7 +383,7 @@ impl Board {
 
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
+                let (new_eval, _, _) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
                 // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;
@@ -370,7 +406,7 @@ impl Board {
 
                 self.grid.insert_chip(col, 'O');
                 // search at 1 more depth using recursion
-                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'O');
+                let (new_eval, _, _) = self.alpha_beta('O', alpha, beta, ply - 1, 'O');
 
                 // if the result found a better col, then replace
                 if new_eval < eval {

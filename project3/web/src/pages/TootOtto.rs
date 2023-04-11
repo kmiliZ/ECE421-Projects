@@ -211,7 +211,7 @@ impl Component for TootOtto {
 
                 let game_data = format!(
                     r#"{{"gameType": "{}", "player1": "{}", "player2": "{}", "winner": "{}"}}"#,
-                    "Connect4",
+                    "TOOT-OTTO",
                     self.player1_name.clone(),
                     self.player2_name.clone(),
                     name.clone()
