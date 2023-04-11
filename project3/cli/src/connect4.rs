@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 #[derive(PartialEq)]
 pub enum State {
     Done,
@@ -275,27 +277,27 @@ impl Board {
         }
     }
 
-    pub fn random_walk(&mut self, player: char) -> i32 {
+    pub fn random_walk(&mut self, player: char) -> (i32, i32) {
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
-            return self.game_value();
+            return (self.game_value(), 0);
         }
 
         // random computer move
         if player == 'O' {
             let col = self.get_random_move();
             self.grid.insert_chip(col, player);
-            let eval = self.random_walk('X');
+            let (eval, _)= self.random_walk('X');
             self.undo_move(col);
-            return eval
+            return (eval/2, col.try_into().unwrap())
         } 
         // random player move
         else {
             let col = self.get_random_move();
             self.grid.insert_chip(col, player);
-            let eval = self.random_walk('O');
+            let (eval, _) = self.random_walk('O');
             self.undo_move(col);
-            return eval
+            return (eval/2, col.try_into().unwrap())
         }
     }
 
@@ -308,7 +310,7 @@ impl Board {
             return (self.game_value(), 0);
         } else if ply == 0 {
             // here the algorithm has run out of depth, which was set by the difficulty
-            return (self.random_walk(player), 0);
+            return self.random_walk(player);
         }
 
         let mut optimal_move = 0;
