@@ -2336,6 +2336,7 @@ dependencies = [
  "common",
  "getrandom",
  "gloo 0.6.1",
+ "gloo-timers",
  "log",
  "rand",
  "rayon",

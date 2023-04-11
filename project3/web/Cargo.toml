@@ -22,6 +22,7 @@ serde_json = "1.0.59"
 gloo = "0.6.1"
 common = { version = "0.1.0", path = "../common" }
 reqwasm = "0.5.0"
+gloo-timers = "0.2.6"
 
 
 [dependencies.web-sys]

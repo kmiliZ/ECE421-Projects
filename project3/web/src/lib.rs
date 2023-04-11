@@ -1,9 +1,13 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
+mod api;
+mod component;
 mod controller;
 mod pages;
 mod router;
-mod api;
+mod constants {
+    pub const COMPUTER_NAME: &str = "AI";
+}
 use router::{switch, Route};
 // mod cell;
 // mod cell_toot;

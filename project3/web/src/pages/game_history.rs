@@ -56,7 +56,6 @@ impl Component for GameHistory {
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        log!("update!!");
         match msg {
             Msg::ReceivedGameData(games) => {
                 self.games = Some(games);
@@ -73,11 +72,11 @@ impl Component for GameHistory {
         html! {
             <div id="history-container">
             <div class="w3-container" id="services" style="margin-top:75px">
-            <h5 class="w3-xxxlarge w3-text-red"><b>{"Game History"}</b></h5>
-            <hr style="width:50px;border:5px solid red" class="w3-round"/>
+            <h5 class="w3-xxxlarge" style="color:#00B7FF"><b>{"Game History"}</b></h5>
+            <hr style="width:50px;border:5px solid #00B7FF" class="w3-round"/>
 
                 <div id="game-stream">
-                <table>
+                <table class="data-table">
                     <tr>
                     <th>{"Game-ID"}</th>
                     <th>{"Game Type"}</th>
