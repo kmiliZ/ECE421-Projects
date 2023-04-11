@@ -9,13 +9,11 @@ use crate::component::game_difficulty::GameDifficulty;
 use crate::component::player::Player;
 use crate::constants::COMPUTER_NAME;
 
-use std::time::Duration;
+
 use std::{cell::RefCell, rc::Rc};
-use std::{clone, thread};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
-use yew::html::Scope;
 use yew::virtual_dom::VNode;
 
 use yew::{events::Event, html, Component, Context};

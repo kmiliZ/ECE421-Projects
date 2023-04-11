@@ -1,7 +1,7 @@
 use crate::pages::{
     connect4::Connect4, connect4_computer::Connect4Computer, game_history::GameHistory,
-    howToPlayConnect4::HowToPlayConnect4, howToPlayTooT::HowToPlayToot, mainPage::MainPage,
-    score_board::Score, tootOtto::TootOtto, tootOtto_computer::TootOttoComputer,
+    how_to_play_connect4::HowToPlayConnect4, how_to_play_toototto::HowToPlayToot, main_page::MainPage,
+    score_board::Score, toototto::TootOtto, toototto_computer::TootOttoComputer,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -9,19 +9,19 @@ use yew_router::prelude::*;
 #[derive(Debug, Clone, Copy, PartialEq, Routable)]
 pub enum Route {
     #[at("/conntect4")]
-    connect4,
+    Connect4,
     #[at("/toot_otto")]
-    toot_otto,
+    TootOtto,
     #[at("/connect4_computer")]
-    connect4_computer,
+    Connect4Computer,
     #[at("/toot_otto_computer")]
-    toot_otto_computer,
+    TootOttoComputer,
     #[at("/game_history")]
-    game_history,
+    GameHistory,
     #[at("/scoreboard")]
-    scoreboard,
+    Scoreboard,
     #[at("/howToPlayTOOT")]
-    howToPlayTOOT,
+    HowToPlayToot,
     #[at("/howToPlayConnect4")]
     HowToPlayConnect4,
     #[at("/")]
@@ -30,25 +30,25 @@ pub enum Route {
 
 pub fn switch(routes: &Route) -> Html {
     match routes.clone() {
-        Route::connect4 => html! {
+        Route::Connect4 => html! {
            <Connect4/>
         },
-        Route::toot_otto => html! {
+        Route::TootOtto => html! {
             <TootOtto/>
         },
-        Route::connect4_computer => html! {
+        Route::Connect4Computer => html! {
             <Connect4Computer/>
         },
-        Route::toot_otto_computer => html! {
+        Route::TootOttoComputer => html! {
            <TootOttoComputer/>
         },
-        Route::game_history => html! {
+        Route::GameHistory => html! {
             <GameHistory/>
         },
-        Route::scoreboard => html! {
+        Route::Scoreboard => html! {
             <Score/>
         },
-        Route::howToPlayTOOT => html! {
+        Route::HowToPlayToot => html! {
             <HowToPlayToot />
         },
         Route::HowToPlayConnect4 => html! {

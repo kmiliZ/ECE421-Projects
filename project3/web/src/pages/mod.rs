@@ -1,9 +1,9 @@
 pub mod connect4;
 pub mod connect4_computer;
 pub mod game_history;
-pub mod howToPlayConnect4;
-pub mod howToPlayTooT;
-pub mod mainPage;
+pub mod how_to_play_connect4;
+pub mod how_to_play_toototto;
+pub mod main_page;
 pub mod score_board;
-pub mod tootOtto;
-pub mod tootOtto_computer;
+pub mod toototto;
+pub mod toototto_computer;

@@ -21,7 +21,7 @@ pub struct TootOtto {
     canvas: Option<canvas_controller::Canvas>,
     canvas_id: String,
     current_player: Player,
-    discType: DiscType,
+    disc_type: DiscType,
 }
 
 pub enum Msg {
@@ -102,7 +102,7 @@ impl Component for TootOtto {
             canvas: None,
             canvas_id: "gameboard-TootOtto-hh".to_string(),
             current_player: Player::Player1,
-            discType: DiscType::T,
+            disc_type: DiscType::T,
         }
     }
 
@@ -141,16 +141,16 @@ impl Component for TootOtto {
                         .unwrap();
                     let is_checked = input_select_t.checked();
                     if is_checked {
-                        self.discType = DiscType::T;
+                        self.disc_type = DiscType::T;
                     } else {
-                        self.discType = DiscType::O;
+                        self.disc_type = DiscType::O;
                     }
                     let inserted_row = self
                         .board
                         .as_ref()
                         .borrow_mut()
                         .grid
-                        .insert_chip(col, self.discType.to_char().clone());
+                        .insert_chip(col, self.disc_type.to_char().clone());
 
                     let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
@@ -167,7 +167,7 @@ impl Component for TootOtto {
                             inserted_row as i64,
                             0,
                             color,
-                            Some(self.discType.to_string().clone()),
+                            Some(self.disc_type.to_string().clone()),
                             self.check_win(),
                             self.check_draw(),
                             winner,
@@ -315,8 +315,8 @@ impl Component for TootOtto {
                 <br/>
                 <form>
                 <h4>{"Select a Disc Type   :"}
-                  <input type="radio" name="choice" value="T" id="input-disc-T" checked={self.discType.is_t_selected()}/> {"T"}
-                  <input type="radio" name="choice" value="O" id="input-disc-O" checked={self.discType.is_o_selected()}/>{"O"}
+                  <input type="radio" name="choice" value="T" id="input-disc-T" checked={self.disc_type.is_t_selected()}/> {"T"}
+                  <input type="radio" name="choice" value="O" id="input-disc-O" checked={self.disc_type.is_o_selected()}/>{"O"}
 
            </h4>
            </form>

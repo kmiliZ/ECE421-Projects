@@ -3,15 +3,13 @@ mod canvas_controller;
 use crate::api;
 use backend::connect4::Board;
 use gloo::console::*;
-use std::clone;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
-use yew::html::Scope;
 use yew::virtual_dom::VNode;
-
 use yew::{events::Event, html, Component, Context};
+
 pub struct Connect4 {
     board: Rc<RefCell<Board>>,
     is_active: bool,

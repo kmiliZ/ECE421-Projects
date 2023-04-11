@@ -9,13 +9,11 @@ mod handler;
 mod model;
 mod schema;
 
-use futures::future::ok;
-
 use db::DB;
 use dotenv::dotenv;
 use schema::FilterOptions;
 use std::convert::Infallible;
-use warp::{fs::dir, http::Method, Filter, Rejection, hyper::header};
+use warp::{ http::Method, Filter, Rejection, hyper::header};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;

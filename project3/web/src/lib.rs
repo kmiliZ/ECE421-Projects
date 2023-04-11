@@ -51,27 +51,27 @@ fn side_nav() -> Html {
                 <Link<Route>  to={Route::HowToPlayConnect4}>
                                 { "How to Play Connect4" }
                             </Link<Route>>
-                            <Link<Route>  to={Route::connect4}>
+                            <Link<Route>  to={Route::Connect4}>
                             { "play connect4 vs human" }
                         </Link<Route>>
-                        <Link<Route>  to={Route::connect4_computer}>
+                        <Link<Route>  to={Route::Connect4Computer}>
                             { "play connect4 vs computer" }
                         </Link<Route>>
                 <br/>
-                <Link<Route>  to={Route::howToPlayTOOT}>
+                <Link<Route>  to={Route::HowToPlayToot}>
                                 { "How to Play TOOT-OTTO" }
                             </Link<Route>>
-                            <Link<Route>  to={Route::toot_otto}>
+                            <Link<Route>  to={Route::TootOtto}>
                                 { "play TOOT-OTTO vs human" }
                             </Link<Route>>
-                            <Link<Route>  to={Route::toot_otto_computer}>
+                            <Link<Route>  to={Route::TootOttoComputer}>
                                 { "play TOOT-OTTO vs computer" }
                             </Link<Route>>
                 <br/>
-                <Link<Route>  to={Route::scoreboard}>
+                <Link<Route>  to={Route::Scoreboard}>
                                 { "Scoreboard" }
                             </Link<Route>>
-                            <Link<Route>  to={Route::game_history}>
+                            <Link<Route>  to={Route::GameHistory}>
                                 { "Game History" }
                             </Link<Route>>
             </nav>

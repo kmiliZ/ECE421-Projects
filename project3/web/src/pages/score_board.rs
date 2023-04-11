@@ -2,10 +2,8 @@ use std::collections::HashMap;
 
 use crate::api;
 use crate::constants::COMPUTER_NAME;
-use chrono::{DateTime, Utc};
 use common::GameResponse;
 use gloo::console::*;
-use serde::Serialize;
 use yew::prelude::*;
 use yew::{html, Component, Html};
 pub enum Msg {
@@ -125,7 +123,7 @@ impl Component for Score {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
         <div id="main">
             <div class="w3-container" id="services" style="margin-top:75px">

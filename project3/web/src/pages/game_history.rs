@@ -1,8 +1,6 @@
 use crate::api;
-use chrono::{DateTime, Utc};
 use common::GameResponse;
 use gloo::console::*;
-use serde::Serialize;
 use yew::prelude::*;
 use yew::{html, Component, Html};
 
@@ -68,7 +66,7 @@ impl Component for GameHistory {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <div id="history-container">
             <div class="w3-container" id="services" style="margin-top:75px">
