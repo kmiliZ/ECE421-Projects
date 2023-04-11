@@ -1,6 +1,8 @@
 // https://blog.logrocket.com/full-stack-rust-a-complete-tutorial-with-examples/
 // https://codevoweb.com/build-a-crud-api-with-rust-and-mongodb/
+// https://codevoweb.com/frontend-app-with-rust-and-yew-user-signup-and-login/
 // testing in windows: Invoke-WebRequest -Uri "http://localhost:8080/api/games" -ContentType "application/json" -Method POST -Body '{"gameType": "Mario", "player1": "p1", "player2": "p2", "winner": "p1"}'
+// testing in Mac: curl -v -X POST http://localhost:8888/api/games -d '{"gameType": "Connect4", "player1": "p1", "player2": "p2", "winner": "p1"}' -H 'content-type: application/json'
 mod db;
 mod error;
 mod handler;
@@ -31,13 +33,12 @@ async fn main() -> Result<()> {
         .allow_credentials(true)
         .allow_methods(&[Method::OPTIONS, Method::GET, Method::POST, Method::PATCH, Method::DELETE])
         // .allow_origins(vec!["http://localhost:3000"])
-        .allow_any_origin()
+        // .allow_any_origin()
         .allow_headers(vec![header::CONTENT_TYPE, header::ACCEPT])
         .expose_headers(vec![header::LINK])
         .allow_credentials(true);
 
     // all routes are defined here
-    
     let api_clear_router = warp::path!("api" / "clearallgames");
     let api_game_router = warp::path!("api" / "games");
     let api_game_router_id = warp::path!("api" / "games" / String);
