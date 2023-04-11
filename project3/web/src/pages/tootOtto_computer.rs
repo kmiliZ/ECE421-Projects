@@ -1,7 +1,7 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
 use crate::api;
-use backend::toot_and_otto::Board;
+use cli::toot_and_otto::Board;
 use gloo::console::*;
 use gloo_timers::callback::Timeout;
 use std::{cell::RefCell, rc::Rc};

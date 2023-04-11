@@ -1,7 +1,7 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
 use crate::api;
-use backend::connect4::Board;
+use cli::connect4::Board;
 use gloo::console::*;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
