@@ -1,7 +1,7 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
 use crate::api;
-use backend::toot_and_otto::Board;
+use cli::toot_and_otto::Board;
 use gloo::console::*;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
@@ -211,7 +211,7 @@ impl Component for TootOtto {
 
                 let game_data = format!(
                     r#"{{"gameType": "{}", "player1": "{}", "player2": "{}", "winner": "{}"}}"#,
-                    "Connect4",
+                    "TOOT-OTTO",
                     self.player1_name.clone(),
                     self.player2_name.clone(),
                     name.clone()

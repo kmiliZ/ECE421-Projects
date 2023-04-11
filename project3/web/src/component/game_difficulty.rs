@@ -22,8 +22,8 @@ impl GameDifficulty {
             GameDifficulty::VeryEasy => 2,
             GameDifficulty::Easy => 4,
             GameDifficulty::Medium => 6,
-            GameDifficulty::Hard => 8,
-            GameDifficulty::Impossible => 10,
+            GameDifficulty::Hard => 7,
+            GameDifficulty::Impossible => 8,
         }
     }
 }

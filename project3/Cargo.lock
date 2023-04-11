@@ -66,13 +66,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "yew",
-]
-
-[[package]]
 name = "base64"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -192,6 +185,14 @@ dependencies = [
  "time 0.1.45",
  "wasm-bindgen",
  "winapi",
+]
+
+[[package]]
+name = "cli"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "yew",
 ]
 
 [[package]]
@@ -2331,8 +2332,8 @@ dependencies = [
 name = "web"
 version = "0.1.0"
 dependencies = [
- "backend",
  "chrono",
+ "cli",
  "common",
  "getrandom",
  "gloo 0.6.1",
