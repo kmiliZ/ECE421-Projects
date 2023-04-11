@@ -300,8 +300,8 @@ impl Board {
     // Returns the move value, best column, and the best character
     // When calling alpha_beta for the first time, set last_move = '_'
     pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32, last_move: char) -> (i32, i32, char) {
-        // best move defaulted to O
-        let mut best_move = 'O';
+        // best move defaulted to T
+        let mut best_move = 'T';
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
             return (self.game_value(), 0, last_move);
@@ -321,21 +321,13 @@ impl Board {
             for col in self.get_legal_moves() {
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _, _) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
+                let (new_eval, _, best_move_found) = self.alpha_beta('T', alpha, beta, ply - 1, 'T');
 
                 // if the result found a better col, then replace
                 if new_eval > eval {
                     eval = new_eval;
                     optimal_move = col;
-                    // the move just given let the computer win
-                    if new_eval == 100{
-                        best_move = 'T';
-                    // the player best move should be the opposite of the computer's best move
-                    } else if best_move == 'T'{
-                        best_move = 'O';
-                    } else  {
-                        best_move = 'T';
-                    }
+                     best_move = 'T';
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
@@ -351,15 +343,7 @@ impl Board {
                 if new_eval > eval{
                     eval = new_eval;
                     optimal_move = col;
-                    // the move just given let the computer win
-                    if new_eval == 100{
-                        best_move = 'O';
-                    // the player best move should be the opposite of the computer's best move
-                    } else if best_move_found == 'T'{
-                        best_move = 'O';
-                    } else  {
-                        best_move = 'T';
-                    }
+                    best_move = 'O';
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
@@ -383,20 +367,12 @@ impl Board {
 
                 self.grid.insert_chip(col, 'T');
                 // search at 1 more depth using recursion
-                let (new_eval, _, _) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
+                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'T');
                 // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
-                    // the move just given let the player win
-                    if new_eval == -100{
-                        best_move = 'T';
-                    } else if best_move == 'T'{
-                    // the computer best move should be the opposite of the player's best move
-                        best_move = 'O';
-                    } else  {
-                        best_move = 'T';
-                    }
+                    best_move = 'T';
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
@@ -406,21 +382,13 @@ impl Board {
 
                 self.grid.insert_chip(col, 'O');
                 // search at 1 more depth using recursion
-                let (new_eval, _, _) = self.alpha_beta('O', alpha, beta, ply - 1, 'O');
+                let (new_eval, _, best_move_found) = self.alpha_beta('O', alpha, beta, ply - 1, 'O');
 
                 // if the result found a better col, then replace
                 if new_eval < eval {
                     eval = new_eval;
                     optimal_move = col;
-                    // the move just given let the player win
-                    if new_eval == -100{
-                        best_move = 'O';
-                    // the computer best move should be the opposite of the player's best move
-                    } else if best_move == 'T'{
-                        best_move = 'O';
-                    } else  {
-                        best_move = 'T';
-                    }
+                    best_move = 'O';
                 }
                 // undo the move to go back to original
                 self.undo_move(col);
