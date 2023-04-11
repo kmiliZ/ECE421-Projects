@@ -1,40 +1,15 @@
 <!DOCTYPE html><html lang="en"><head>
-  <meta charset="utf-8">
-  <title>connect4</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Connect4</title>
+  <link rel="icon" href="/favicon-19ac05dc4f153244.ico">
   <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-  <link rel="stylesheet" href="/styles-fee249b3c9d1ee70.css">
+  <link rel="stylesheet" href="/styles-32cc87d05a8ab423.css">
 
-<link rel="preload" href="/web-b29dc0f0d94a5e2b_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/web-b29dc0f0d94a5e2b.js"></head>
+<link rel="preload" href="/web-54187d2f9c8ec6b3_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/web-54187d2f9c8ec6b3.js"></head>
 
 <body>
 
-<script type="module">import init from '/web-b29dc0f0d94a5e2b.js';init('/web-b29dc0f0d94a5e2b_bg.wasm');</script><script>(function () {
-    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    var url = protocol + '//' + window.location.host + '/_trunk/ws';
-    var poll_interval = 5000;
-    var reload_upon_connect = () => {
-        window.setTimeout(
-            () => {
-                // when we successfully reconnect, we'll force a
-                // reload (since we presumably lost connection to
-                // trunk due to it being killed, so it will have
-                // rebuilt on restart)
-                var ws = new WebSocket(url);
-                ws.onopen = () => window.location.reload();
-                ws.onclose = reload_upon_connect;
-            },
-            poll_interval);
-    };
-
-    var ws = new WebSocket(url);
-    ws.onmessage = (ev) => {
-        const msg = JSON.parse(ev.data);
-        if (msg.reload) {
-            window.location.reload();
-        }
-    };
-    ws.onclose = reload_upon_connect;
-})()
-</script></body></html>
+<script type="module">import init from '/web-54187d2f9c8ec6b3.js';init('/web-54187d2f9c8ec6b3_bg.wasm');</script></body></html>

@@ -4,8 +4,8 @@ use crate::{error::Error::*, schema::CreateGameSchema, Result, model::GameModel}
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson::{doc, oid::ObjectId, Document};
-use mongodb::options::{FindOneAndUpdateOptions, FindOptions, IndexOptions, ReturnDocument};
-use mongodb::{bson, options::ClientOptions, Client, Collection, IndexModel};
+use mongodb::options::{FindOptions, IndexOptions};
+use mongodb::{bson, options::ClientOptions, Client, Collection};
 use std::str::FromStr;
 use common::*;
 
@@ -109,11 +109,11 @@ impl DB {
         let winner = body.winner.to_owned().unwrap_or("".to_string());
         let serialized_data = bson::to_bson(&body).map_err(MongoSerializeBsonError)?;
         let document = serialized_data.as_document().unwrap();
-        let options = IndexOptions::builder().unique(true).build();
+        let _options = IndexOptions::builder().unique(true).build();
 
-        let playedTime = Utc::now();
+        let played_time = Utc::now();
 
-        let mut doc_with_dates = doc! {"playedTime": playedTime, "game_type": game_type, "player1": player1, "player2": player2, "winner": winner};
+        let mut doc_with_dates = doc! {"playedTime": played_time, "game_type": game_type, "player1": player1, "player2": player2, "winner": winner};
         doc_with_dates.extend(document.clone());
 
         let insert_result = self

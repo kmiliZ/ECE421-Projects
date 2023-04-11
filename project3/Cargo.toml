@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "backend",
+    "cli",
     "web",
     "server",
 

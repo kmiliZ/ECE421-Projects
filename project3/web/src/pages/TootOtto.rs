@@ -1,6 +1,7 @@
 #[path = "../controller/canvas_controller.rs"]
 mod canvas_controller;
-use backend::toot_and_otto::Board;
+use crate::api;
+use cli::toot_and_otto::Board;
 use gloo::console::*;
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
@@ -8,6 +9,10 @@ use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
 use yew::virtual_dom::VNode;
 use yew::{events::Event, html, Component, Context};
+
+use crate::component::disc::DiscType;
+use crate::component::player::Player;
+
 pub struct TootOtto {
     board: Rc<RefCell<Board>>,
     is_active: bool,
@@ -16,70 +21,7 @@ pub struct TootOtto {
     canvas: Option<canvas_controller::Canvas>,
     canvas_id: String,
     current_player: Player,
-    discType: DiscType,
-}
-
-pub enum Player {
-    Player1,
-    Player2,
-}
-
-pub enum DiscType {
-    T,
-    O,
-}
-
-impl DiscType {
-    pub fn to_char(&self) -> char {
-        match self {
-            Self::T => 'T',
-            Self::O => 'O',
-        }
-    }
-
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::T => "T".to_string(),
-            Self::O => "O".to_string(),
-        }
-    }
-
-    pub fn is_o_selected(&self) -> bool {
-        match self {
-            Self::T => false,
-            Self::O => true,
-        }
-    }
-
-    pub fn is_t_selected(&self) -> bool {
-        match self {
-            Self::T => true,
-            Self::O => false,
-        }
-    }
-}
-
-impl Player {
-    pub fn to_char(&self) -> char {
-        match self {
-            Self::Player1 => 'X',
-            Self::Player2 => 'O',
-        }
-    }
-
-    pub fn to_string(&self, player1_name: String, player2_name: String) -> String {
-        match self {
-            Player::Player1 => player1_name,
-            Player::Player2 => player2_name,
-        }
-    }
-
-    pub fn get_color(&self) -> String {
-        match self {
-            Player::Player1 => "#FC2947".to_string(),
-            Player::Player2 => "#00B7FF".to_string(),
-        }
-    }
+    disc_type: DiscType,
 }
 
 pub enum Msg {
@@ -87,6 +29,9 @@ pub enum Msg {
     SetPlayer1Name(String),
     SetPlayer2Name(String),
     InsertChip((usize, usize)),
+    PostGame(String),
+    PostOK,
+    PostError,
 }
 impl TootOtto {
     fn check_win_otto(&self) -> bool {
@@ -157,7 +102,7 @@ impl Component for TootOtto {
             canvas: None,
             canvas_id: "gameboard-TootOtto-hh".to_string(),
             current_player: Player::Player1,
-            discType: DiscType::T,
+            disc_type: DiscType::T,
         }
     }
 
@@ -184,6 +129,7 @@ impl Component for TootOtto {
                 return true;
             }
             Msg::InsertChip((col, _row)) => {
+                let link = ctx.link().clone();
                 if self.is_active {
                     // grab radio input value for disc type
 
@@ -195,37 +141,45 @@ impl Component for TootOtto {
                         .unwrap();
                     let is_checked = input_select_t.checked();
                     if is_checked {
-                        self.discType = DiscType::T;
+                        self.disc_type = DiscType::T;
                     } else {
-                        self.discType = DiscType::O;
+                        self.disc_type = DiscType::O;
                     }
                     let inserted_row = self
                         .board
                         .as_ref()
                         .borrow_mut()
                         .grid
-                        .insert_chip(col, self.discType.to_char().clone());
+                        .insert_chip(col, self.disc_type.to_char().clone());
 
                     let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
+                        let mut winner = "".to_string();
+                        if self.check_win_toot() {
+                            winner = self.player1_name.clone();
+                        }
+                        if self.check_win_otto() {
+                            winner = self.player2_name.clone()
+                        }
                         canvas_controller::animate(
                             self.canvas_id.clone(),
                             col as i64,
                             inserted_row as i64,
                             0,
                             color,
-                            Some(self.discType.to_string().clone()),
+                            Some(self.disc_type.to_string().clone()),
                             self.check_win(),
                             self.check_draw(),
-                            self.current_player
-                                .to_string(self.player1_name.clone(), self.player2_name.clone()),
+                            winner,
                         );
 
                         if self.check_win() {
                             self.is_active = false;
+                            link.send_message(Msg::PostGame("".to_string()));
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
+                                link.send_message(Msg::PostGame("draw".to_string()));
                             }
                         }
                         // change current turn here, both board and TootOtto
@@ -237,9 +191,38 @@ impl Component for TootOtto {
                     }
                     return true;
                 }
-                let link = ctx.link().clone();
                 link.send_message(Msg::Start);
                 return true;
+            }
+            Msg::PostOK => false,
+            Msg::PostError => false,
+            Msg::PostGame(winner) => {
+                let mut name = winner.clone();
+                if name == "" {
+                    match self.current_player {
+                        Player::Player1 => {
+                            name = self.player1_name.clone();
+                        }
+                        Player::Player2 => {
+                            name = self.player2_name.clone();
+                        }
+                    }
+                }
+
+                let game_data = format!(
+                    r#"{{"gameType": "{}", "player1": "{}", "player2": "{}", "winner": "{}"}}"#,
+                    "TOOT-OTTO",
+                    self.player1_name.clone(),
+                    self.player2_name.clone(),
+                    name.clone()
+                );
+                ctx.link().send_future(async move {
+                    match api::api_create_game(&game_data.clone()).await {
+                        Ok(_games) => Msg::PostOK,
+                        Err(_err_str) => Msg::PostError,
+                    }
+                });
+                return false;
             }
         }
     }
@@ -328,12 +311,12 @@ impl Component for TootOtto {
                 <br/>
 
                 <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
-                <small>{"Disc Colors: "} {&self.player1_name} <b>{" - Red"}</b>    {" and "}    {&self.player2_name} <b>{" - Blue"}</b></small>
+                <small>{"Winning Combination: "} {&self.player1_name} <b>{" - TOOT"}</b>    {" and "}    {&self.player2_name} <b>{" - OTTO"}</b></small>
                 <br/>
                 <form>
                 <h4>{"Select a Disc Type   :"}
-                  <input type="radio" name="choice" value="T" id="input-disc-T" checked={self.discType.is_t_selected()}/> {"T"}
-                  <input type="radio" name="choice" value="O" id="input-disc-O" checked={self.discType.is_o_selected()}/>{"O"}
+                  <input type="radio" name="choice" value="T" id="input-disc-T" checked={self.disc_type.is_t_selected()}/> {"T"}
+                  <input type="radio" name="choice" value="O" id="input-disc-O" checked={self.disc_type.is_o_selected()}/>{"O"}
 
            </h4>
            </form>

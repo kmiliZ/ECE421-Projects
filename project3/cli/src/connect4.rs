@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 #[derive(PartialEq)]
 pub enum State {
     Done,
@@ -54,16 +56,16 @@ impl Board {
     }
 
     pub fn check_win(&mut self) -> bool {
-        let playerX = 'X';
-        let playerO = 'O';
+        let player_x = 'X';
+        let player_o = 'O';
 
         // Check for horizontal win
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerX
-                    && self.grid.get(row, col + 1) == playerX
-                    && self.grid.get(row, col + 2) == playerX
-                    && self.grid.get(row, col + 3) == playerX
+                if self.grid.get(row, col) == player_x
+                    && self.grid.get(row, col + 1) == player_x
+                    && self.grid.get(row, col + 2) == player_x
+                    && self.grid.get(row, col + 3) == player_x
                 {
                     self.set_winner(self.player1.clone());
                     self.state = State::Done;
@@ -74,10 +76,10 @@ impl Board {
 
         for row in 0..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerO
-                    && self.grid.get(row, col + 1) == playerO
-                    && self.grid.get(row, col + 2) == playerO
-                    && self.grid.get(row, col + 3) == playerO
+                if self.grid.get(row, col) == player_o
+                    && self.grid.get(row, col + 1) == player_o
+                    && self.grid.get(row, col + 2) == player_o
+                    && self.grid.get(row, col + 3) == player_o
                 {
                     self.set_winner(self.player2.clone());
 
@@ -91,10 +93,10 @@ impl Board {
         // Check for vertical win
         for row in 0..self.rows - 3 {
             for col in 0..self.cols {
-                if self.grid.get(row, col) == playerX
-                    && self.grid.get(row + 1, col) == playerX
-                    && self.grid.get(row + 2, col) == playerX
-                    && self.grid.get(row + 3, col) == playerX
+                if self.grid.get(row, col) == player_x
+                    && self.grid.get(row + 1, col) == player_x
+                    && self.grid.get(row + 2, col) == player_x
+                    && self.grid.get(row + 3, col) == player_x
                 {
                     self.set_winner(self.player1.clone());
                     self.state = State::Done;
@@ -105,10 +107,10 @@ impl Board {
 
         for row in 0..self.rows - 3 {
             for col in 0..self.cols {
-                if self.grid.get(row, col) == playerO
-                    && self.grid.get(row + 1, col) == playerO
-                    && self.grid.get(row + 2, col) == playerO
-                    && self.grid.get(row + 3, col) == playerO
+                if self.grid.get(row, col) == player_o
+                    && self.grid.get(row + 1, col) == player_o
+                    && self.grid.get(row + 2, col) == player_o
+                    && self.grid.get(row + 3, col) == player_o
                 {
 
                     self.set_winner(self.player2.clone());
@@ -122,10 +124,10 @@ impl Board {
         // Check for diagonal win (top-left to bottom-right)
         for row in 0..self.rows - 3 {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerX
-                    && self.grid.get(row + 1, col + 1) == playerX
-                    && self.grid.get(row + 2, col + 2) == playerX
-                    && self.grid.get(row + 3, col + 3) == playerX
+                if self.grid.get(row, col) == player_x
+                    && self.grid.get(row + 1, col + 1) == player_x
+                    && self.grid.get(row + 2, col + 2) == player_x
+                    && self.grid.get(row + 3, col + 3) == player_x
                 {
 
                     self.set_winner(self.player1.clone());
@@ -137,10 +139,10 @@ impl Board {
 
         for row in 0..self.rows - 3 {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerO
-                    && self.grid.get(row + 1, col + 1) == playerO
-                    && self.grid.get(row + 2, col + 2) == playerO
-                    && self.grid.get(row + 3, col + 3) == playerO
+                if self.grid.get(row, col) == player_o
+                    && self.grid.get(row + 1, col + 1) == player_o
+                    && self.grid.get(row + 2, col + 2) == player_o
+                    && self.grid.get(row + 3, col + 3) == player_o
                 {
                     self.set_winner(self.player2.clone());
 
@@ -153,10 +155,10 @@ impl Board {
         // Check for diagonal win (bottom-left to top-right)
         for row in 3..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerX
-                    && self.grid.get(row - 1, col + 1) == playerX
-                    && self.grid.get(row - 2, col + 2) == playerX
-                    && self.grid.get(row - 3, col + 3) == playerX
+                if self.grid.get(row, col) == player_x
+                    && self.grid.get(row - 1, col + 1) == player_x
+                    && self.grid.get(row - 2, col + 2) == player_x
+                    && self.grid.get(row - 3, col + 3) == player_x
                 {
                     self.set_winner(self.player1.clone());
                     self.state = State::Done;
@@ -167,10 +169,10 @@ impl Board {
 
         for row in 3..self.rows {
             for col in 0..self.cols - 3 {
-                if self.grid.get(row, col) == playerO
-                    && self.grid.get(row - 1, col + 1) == playerO
-                    && self.grid.get(row - 2, col + 2) == playerO
-                    && self.grid.get(row - 3, col + 3) == playerO
+                if self.grid.get(row, col) == player_o
+                    && self.grid.get(row - 1, col + 1) == player_o
+                    && self.grid.get(row - 2, col + 2) == player_o
+                    && self.grid.get(row - 3, col + 3) == player_o
                 {
 
                     self.set_winner(self.player2.clone());
@@ -250,6 +252,21 @@ impl Board {
         moves
     }
 
+    // Returns a random move available on the board
+    pub fn get_random_move(&self) -> usize {
+        let mut moves = Vec::new();
+        for col in 0..self.cols {
+            if self.grid.get(0, col) == '_' {
+                moves.push(col);
+            }
+        }
+        if let Some(next_move) = moves.choose(&mut rand::thread_rng()) {
+            return *next_move;
+        } else {
+            return 0;
+        }
+    }
+
     // Removes the last piece dropped at a specified column
     pub fn undo_move(&mut self, col: usize) {
         for row in 0..self.rows {
@@ -257,6 +274,30 @@ impl Board {
                 self.grid.set(row, col, '_');
                 break;
             }
+        }
+    }
+
+    pub fn random_walk(&mut self, player: char) -> (i32, i32) {
+        // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
+        if self.is_terminal() {
+            return (self.game_value(), 0);
+        }
+
+        // random computer move
+        if player == 'O' {
+            let col = self.get_random_move();
+            self.grid.insert_chip(col, player);
+            let (eval, _)= self.random_walk('X');
+            self.undo_move(col);
+            return (eval/2, col.try_into().unwrap())
+        } 
+        // random player move
+        else {
+            let col = self.get_random_move();
+            self.grid.insert_chip(col, player);
+            let (eval, _) = self.random_walk('O');
+            self.undo_move(col);
+            return (eval/2, col.try_into().unwrap())
         }
     }
 
@@ -269,7 +310,7 @@ impl Board {
             return (self.game_value(), 0);
         } else if ply == 0 {
             // here the algorithm has run out of depth, which was set by the difficulty
-            return (0, 0);
+            return self.random_walk(player);
         }
 
         let mut optimal_move = 0;

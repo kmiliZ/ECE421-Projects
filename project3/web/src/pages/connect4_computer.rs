@@ -3,14 +3,21 @@ mod canvas_controller;
 use crate::api;
 use cli::connect4::Board;
 use gloo::console::*;
+use gloo_timers::callback::Timeout;
+
+use crate::component::game_difficulty::GameDifficulty;
+use crate::component::player::Player;
+use crate::constants::COMPUTER_NAME;
+
+
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
 use yew::virtual_dom::VNode;
-use yew::{events::Event, html, Component, Context};
 
-pub struct Connect4 {
+use yew::{events::Event, html, Component, Context};
+pub struct Connect4Computer {
     board: Rc<RefCell<Board>>,
     is_active: bool,
     player1_name: String,
@@ -18,48 +25,20 @@ pub struct Connect4 {
     canvas: Option<canvas_controller::Canvas>,
     canvas_id: String,
     current_player: Player,
-}
-
-pub enum Player {
-    Player1,
-    Player2,
-}
-
-impl Player {
-    pub fn to_char(&self) -> char {
-        match self {
-            Player::Player1 => 'X',
-            Player::Player2 => 'O',
-        }
-    }
-
-    pub fn to_string(&self, player1_name: String, player2_name: String) -> String {
-        match self {
-            Player::Player1 => player1_name,
-            Player::Player2 => player2_name,
-        }
-    }
-
-    pub fn get_color(&self) -> String {
-        match self {
-            Player::Player1 => "#FC2947".to_string(),
-            Player::Player2 => "#00B7FF".to_string(),
-        }
-    }
+    difficulty: GameDifficulty,
 }
 
 pub enum Msg {
     Start,
     SetPlayer1Name(String),
-    SetPlayer2Name(String),
     InsertChip((usize, usize)),
     PostGame(String),
     PostOK,
     PostError,
+    ChangeGameDifficulty(GameDifficulty),
 }
-impl Connect4 {
+impl Connect4Computer {
     fn check_win(&self) -> bool {
-        log!("checking win...");
         if self.board.as_ref().borrow_mut().check_win() {
             return true;
         }
@@ -93,16 +72,36 @@ impl Connect4 {
 
         self.board.borrow_mut().current_turn = player.to_char();
     }
+
+    fn computer_make_move(&mut self) -> i32 {
+        log!("compter makes move");
+        let (_pruning_value, best_col) = self.board.as_ref().borrow_mut().alpha_beta(
+            self.current_player.to_char().clone(),
+            i32::MIN,
+            i32::MAX,
+            self.difficulty.get_depth_level(),
+        );
+        return best_col;
+    }
+
+    fn insert_chip(&mut self, col: usize) -> i32 {
+        return self
+            .board
+            .as_ref()
+            .borrow_mut()
+            .grid
+            .insert_chip(col, self.current_player.to_char().clone());
+    }
 }
 
-impl Component for Connect4 {
+impl Component for Connect4Computer {
     type Message = Msg;
     type Properties = ();
     fn create(_ctx: &Context<Self>) -> Self {
-        Connect4 {
+        Connect4Computer {
             board: Rc::new(RefCell::new(Board::new(
                 "".to_string(),
-                "".to_string(),
+                COMPUTER_NAME.to_string(),
                 0,
                 false,
                 6,
@@ -110,10 +109,11 @@ impl Component for Connect4 {
             ))),
             is_active: false,
             player1_name: "".to_string(),
-            player2_name: "".to_string(),
+            player2_name: COMPUTER_NAME.to_string(),
             canvas: None,
-            canvas_id: "gameboard-connect4-hh".to_string(),
+            canvas_id: "gameboard-connect4-hc".to_string(),
             current_player: Player::Player1,
+            difficulty: GameDifficulty::VeryEasy,
         }
     }
 
@@ -135,18 +135,12 @@ impl Component for Connect4 {
                 self.player1_name = input;
                 return true;
             }
-            Msg::SetPlayer2Name(input) => {
-                self.player2_name = input;
-                return true;
-            }
+
             Msg::InsertChip((col, _row)) => {
+                let link = ctx.link().clone();
+
                 if self.is_active {
-                    let inserted_row = self
-                        .board
-                        .as_ref()
-                        .borrow_mut()
-                        .grid
-                        .insert_chip(col, self.current_player.to_char().clone());
+                    let inserted_row = self.insert_chip(col);
 
                     let color = self.current_player.get_color().clone();
                     if inserted_row >= 0 {
@@ -164,33 +158,35 @@ impl Component for Connect4 {
                                 .to_string(self.player1_name.clone(), self.player2_name.clone()),
                         );
 
-                        self.canvas.as_ref().unwrap().draw_circle(
-                            self.current_player.get_color(),
-                            col,
-                            inserted_row.try_into().unwrap(),
-                            25.0,
-                        );
                         if self.check_win() {
                             self.is_active = false;
-                            let link = ctx.link().clone();
                             link.send_message(Msg::PostGame("".to_string()));
+                            return true;
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
-                                let link = ctx.link().clone();
                                 link.send_message(Msg::PostGame("draw".to_string()));
+                                return true;
                             }
                         }
                         // change current turn here, both board and connect4
                         match self.current_player {
-                            Player::Player1 => self.current_player = Player::Player2,
+                            Player::Player1 => {
+                                self.current_player = Player::Player2;
+                                let col: usize = self.computer_make_move().try_into().unwrap();
+                                // thread::sleep(Duration::from_secs(1));
+                                let timeout = Timeout::new(300, move || {
+                                    log!("callback");
+                                    link.send_message(Msg::InsertChip((col, 0)));
+                                });
+                                timeout.forget();
+                            }
                             Player::Player2 => self.current_player = Player::Player1,
                         }
                         self.change_current_board_turn();
                     }
                     return true;
                 }
-                let link = ctx.link().clone();
                 link.send_message(Msg::Start);
                 return true;
             }
@@ -224,6 +220,10 @@ impl Component for Connect4 {
             }
             Msg::PostOK => false,
             Msg::PostError => false,
+            Msg::ChangeGameDifficulty(level) => {
+                self.difficulty = level;
+                true
+            }
         }
     }
     fn rendered(&mut self, ctx: &Context<Self>, _first_render: bool) {
@@ -259,7 +259,6 @@ impl Component for Connect4 {
                 link.send_message(Msg::Start);
             }
             // let coord = (event.client_x(), event.client_y());
-            log!("board clicked");
         });
         canvas.register_onclick_listener(closure);
         self.canvas = Some(canvas);
@@ -272,16 +271,11 @@ impl Component for Connect4 {
                 .expect("Event should have a target when dispatched");
             // You must KNOW target is a HtmlInputElement, otherwise
             // the call to value would be Undefined Behaviour (UB).
+            log!("board clicked");
+
             Msg::SetPlayer1Name(target.unchecked_into::<HtmlInputElement>().value())
         });
-        let on_dangerous_change_input2 = ctx.link().callback(|e: Event| {
-            let target: EventTarget = e
-                .target()
-                .expect("Event should have a target when dispatched");
-            // You must KNOW target is a HtmlInputElement, otherwise
-            // the call to value would be Undefined Behaviour (UB).
-            Msg::SetPlayer2Name(target.unchecked_into::<HtmlInputElement>().value())
-        });
+
         html! {
         <div id="main" >
         if self.is_active {
@@ -291,7 +285,7 @@ impl Component for Connect4 {
             </div>
         } else {
             <div class="w3-container" id="services" style="margin-top:45px">
-                <h5 class="w3-xxxlarge w3-text-red"><b>{"Enter Your Name"}</b></h5>
+                <h5 class="w3-xxlarge w3-text-red"><b>{"Enter Your Name"}</b></h5>
                 <hr style="width:50px;border:5px solid red" class="w3-round"/>
             </div>
         }
@@ -299,15 +293,27 @@ impl Component for Connect4 {
             <div class="col-md-offset-4 col-md-8">
                 <form>
                     <div class="col-md-offset-3 col-md-8">
-                        <input id="textbox1" type="text" placeholder="Player 1's Name"  disabled={self.is_active} onchange={on_dangerous_change_input1}/>
-                        <input id="textbox2" type="text" placeholder="Player 2's Name"  disabled={self.is_active} onchange ={on_dangerous_change_input2}/>
+                        <input id="textbox1" type="text" placeholder="Player's Name"  disabled={self.is_active} onchange={on_dangerous_change_input1}/>
                         <input id="startbutton" class="button" type="submit" value="Start Game" disabled={self.is_active} onclick={ctx.link().callback(|_| Msg::Start)}/>
                     </div>
                 </form>
                 <div >
                     <br/>
-
+                        <div class="game-difficulty">
+                            {"Select The Game Difficulty:"}
+                            <input type="radio" id="Very-Easy" value="Very Easy" checked={self.difficulty.get_string()=="Very Easy" } oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::VeryEasy))} />
+                            <label for="Very-Easy">{"Very Easy"}</label>
+                            <input type="radio" id="Easy" value="Easy" checked={self.difficulty.get_string()=="Easy"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Easy))}/>
+                            <label for="Easy">{"Easy"}</label>
+                            <input type="radio" id="Medium" value="Medium" checked={self.difficulty.get_string()=="Medium"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Medium))}/>
+                            <label for="Medium">{"Medium"}</label>
+                            <input type="radio" id="Hard" value="Hard" checked={self.difficulty.get_string()=="Hard"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Hard))}/>
+                            <label for="Hard">{"Hard"}</label>
+                            <input type="radio" id="Impossible" value="Impossible" checked={self.difficulty.get_string()=="Impossible"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Impossible))}/>
+                            <label for="Impossible">{"Impossible"}</label>
+                        </div>
                     <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
+                    <h5>{"current difficulty: "} {&self.difficulty.get_string()}</h5>
                     <small>{"Disc Colors: "} {&self.player1_name} <b>{" - Red"}</b>    {" and "}    {&self.player2_name} <b>{" - Blue"}</b></small>
 
                 </div>
