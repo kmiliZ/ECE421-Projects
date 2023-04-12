@@ -100,7 +100,7 @@ impl Component for Connect4Computer {
             board: Rc::new(RefCell::new(Board::new(
                 "".to_string(),
                 COMPUTER_NAME.to_string(),
-                0,
+                2,
                 false,
                 6,
                 7,
@@ -220,6 +220,7 @@ impl Component for Connect4Computer {
             Msg::PostError => false,
             Msg::ChangeGameDifficulty(level) => {
                 self.difficulty = level;
+                self.board.as_ref().borrow_mut().set_ai_depth(level);
                 true
             }
         }

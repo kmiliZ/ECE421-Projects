@@ -111,8 +111,8 @@ impl Component for TootOttoComputer {
             board: Rc::new(RefCell::new(Board::new(
                 "".to_string(),
                 COMPUTER_NAME.to_string(),
-                0,
-                false,
+                4,
+                tru,
                 6,
                 7,
             ))),
@@ -258,6 +258,7 @@ impl Component for TootOttoComputer {
             }
             Msg::ChangeGameDifficulty(level) => {
                 self.difficulty = level;
+                self.board.as_ref().borrow_mut().set_ai_depth(level);
                 true
             }
         }
@@ -294,8 +295,6 @@ impl Component for TootOttoComputer {
             if !clicked_on_cell {
                 link.send_message(Msg::Start);
             }
-            // let coord = (event.client_x(), event.client_y());
-            log!("board clicked");
         });
         canvas.register_onclick_listener(closure);
         self.canvas = Some(canvas);
@@ -339,16 +338,14 @@ impl Component for TootOttoComputer {
                 <br/>
                 <div class="game-difficulty">
                             {"Select The Game Difficulty:"}
-                            <input type="radio" id="Very-Easy" value="Very Easy" checked={self.difficulty.get_string()=="Very Easy" } oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::VeryEasy))} />
-                            <label for="Very-Easy">{"Very Easy"}</label>
+
                             <input type="radio" id="Easy" value="Easy" checked={self.difficulty.get_string()=="Easy"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Easy))}/>
                             <label for="Easy">{"Easy"}</label>
                             <input type="radio" id="Medium" value="Medium" checked={self.difficulty.get_string()=="Medium"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Medium))}/>
                             <label for="Medium">{"Medium"}</label>
                             <input type="radio" id="Hard" value="Hard" checked={self.difficulty.get_string()=="Hard"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Hard))}/>
                             <label for="Hard">{"Hard"}</label>
-                            <input type="radio" id="Impossible" value="Impossible" checked={self.difficulty.get_string()=="Impossible"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Impossible))}/>
-                            <label for="Impossible">{"Impossible"}</label>
+
                         </div>
 
                 <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>
