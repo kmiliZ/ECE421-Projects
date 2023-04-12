@@ -23,8 +23,14 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(player1_name: String, player2_name: String, max_depth: i32, with_ai: bool, rows_input: usize, cols_input: usize) -> Board {
-
+    pub fn new(
+        player1_name: String,
+        player2_name: String,
+        max_depth: i32,
+        with_ai: bool,
+        rows_input: usize,
+        cols_input: usize,
+    ) -> Board {
         let mut board = Board {
             grid: Grid::new(rows_input, cols_input),
             current_turn: 'X',
@@ -89,7 +95,6 @@ impl Board {
             }
         }
 
-
         // Check for vertical win
         for row in 0..self.rows - 3 {
             for col in 0..self.cols {
@@ -112,7 +117,6 @@ impl Board {
                     && self.grid.get(row + 2, col) == player_o
                     && self.grid.get(row + 3, col) == player_o
                 {
-
                     self.set_winner(self.player2.clone());
 
                     self.state = State::Done;
@@ -129,7 +133,6 @@ impl Board {
                     && self.grid.get(row + 2, col + 2) == player_x
                     && self.grid.get(row + 3, col + 3) == player_x
                 {
-
                     self.set_winner(self.player1.clone());
                     self.state = State::Done;
                     return true;
@@ -174,7 +177,6 @@ impl Board {
                     && self.grid.get(row - 2, col + 2) == player_o
                     && self.grid.get(row - 3, col + 3) == player_o
                 {
-
                     self.set_winner(self.player2.clone());
                     self.state = State::Done;
                     return true;
@@ -219,7 +221,7 @@ impl Board {
     }
 
     // Returns who won in game for the alpha_beta algorithm
-    pub fn game_value(&mut self) -> i32{
+    pub fn game_value(&mut self) -> i32 {
         if self.check_win() {
             // Player won
             if self.winner == self.player1 {
@@ -287,24 +289,30 @@ impl Board {
         if player == 'O' {
             let col = self.get_random_move();
             self.grid.insert_chip(col, player);
-            let (eval, _)= self.random_walk('X');
+            let (eval, _) = self.random_walk('X');
             self.undo_move(col);
-            return (eval/2, col.try_into().unwrap())
-        } 
+            return (eval / 2, col.try_into().unwrap());
+        }
         // random player move
         else {
             let col = self.get_random_move();
             self.grid.insert_chip(col, player);
             let (eval, _) = self.random_walk('O');
             self.undo_move(col);
-            return (eval/2, col.try_into().unwrap())
+            return (eval / 2, col.try_into().unwrap());
         }
     }
 
     //https://medium.com/analytics-vidhya/artificial-intelligence-at-play-connect-four-minimax-algorithm-explained-3b5fc32e4a4f
     // For explaining minimax and alpha beta pruning.
     // Returns the move value, and the best column
-    pub fn alpha_beta(&mut self, player: char, mut alpha: i32, mut beta: i32, ply: i32) -> (i32, i32) {
+    pub fn alpha_beta(
+        &mut self,
+        player: char,
+        mut alpha: i32,
+        mut beta: i32,
+        ply: i32,
+    ) -> (i32, i32) {
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
             return (self.game_value(), 0);
@@ -318,11 +326,10 @@ impl Board {
         // maximize computer
         if player == 'O' {
             // start at the worst case value for the maximizing computer
-            let mut eval = i32::MIN; 
+            let mut eval = i32::MIN;
 
             // go through all available moves
             for col in self.get_legal_moves() {
-
                 self.grid.insert_chip(col, player);
                 // search at 1 more depth using recursion
                 let (new_eval, _) = self.alpha_beta('X', alpha, beta, ply - 1);
@@ -347,11 +354,10 @@ impl Board {
         // maximize player
         else if player == 'X' {
             // start at the worst case eval for the minimizing player
-            let mut eval = i32::MAX; 
+            let mut eval = i32::MAX;
 
             // go through all available moves
             for col in self.get_legal_moves() {
-
                 self.grid.insert_chip(col, player);
                 // search at 1 more depth using recursion
                 let (new_eval, _) = self.alpha_beta('O', alpha, beta, ply - 1);
@@ -378,10 +384,9 @@ impl Board {
         }
     }
 
-    pub fn set_ai_depth(&mut self, new_difficulty: u32) {
+    pub fn set_ai_depth(&mut self, new_difficulty: i32) {
         self.ai_depth = new_difficulty;
     }
-
 }
 
 pub struct Grid {

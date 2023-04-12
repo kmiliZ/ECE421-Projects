@@ -112,7 +112,7 @@ impl Component for TootOttoComputer {
                 "".to_string(),
                 COMPUTER_NAME.to_string(),
                 4,
-                tru,
+                true,
                 6,
                 7,
             ))),
@@ -123,7 +123,7 @@ impl Component for TootOttoComputer {
             canvas_id: "gameboard-TootOtto-hh".to_string(),
             current_player: Player::Player1,
             disc_type: DiscType::T,
-            difficulty: GameDifficulty::VeryEasy,
+            difficulty: GameDifficulty::Easy,
         }
     }
 
@@ -258,7 +258,12 @@ impl Component for TootOttoComputer {
             }
             Msg::ChangeGameDifficulty(level) => {
                 self.difficulty = level;
-                self.board.as_ref().borrow_mut().set_ai_depth(level);
+                let depth = self.difficulty.get_depth_level();
+                self.board
+                    .as_ref()
+                    .borrow_mut()
+                    .set_ai_depth(depth.clone() as u32);
+                log!("depth changed to ", depth);
                 true
             }
         }
@@ -338,14 +343,12 @@ impl Component for TootOttoComputer {
                 <br/>
                 <div class="game-difficulty">
                             {"Select The Game Difficulty:"}
-
                             <input type="radio" id="Easy" value="Easy" checked={self.difficulty.get_string()=="Easy"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Easy))}/>
                             <label for="Easy">{"Easy"}</label>
                             <input type="radio" id="Medium" value="Medium" checked={self.difficulty.get_string()=="Medium"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Medium))}/>
                             <label for="Medium">{"Medium"}</label>
                             <input type="radio" id="Hard" value="Hard" checked={self.difficulty.get_string()=="Hard"} oninput = {ctx.link().callback(|_| Msg::ChangeGameDifficulty(GameDifficulty::Hard))}/>
                             <label for="Hard">{"Hard"}</label>
-
                         </div>
 
                 <h4>{"New Game:"}{&self.player1_name}{" VS "}{&self.player2_name}</h4>

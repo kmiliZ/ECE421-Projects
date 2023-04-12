@@ -111,7 +111,7 @@ impl Component for Connect4Computer {
             canvas: None,
             canvas_id: "gameboard-connect4-hc".to_string(),
             current_player: Player::Player1,
-            difficulty: GameDifficulty::VeryEasy,
+            difficulty: GameDifficulty::Easy,
         }
     }
 
@@ -220,7 +220,9 @@ impl Component for Connect4Computer {
             Msg::PostError => false,
             Msg::ChangeGameDifficulty(level) => {
                 self.difficulty = level;
-                self.board.as_ref().borrow_mut().set_ai_depth(level);
+                let depth = self.difficulty.get_depth_level();
+                self.board.as_ref().borrow_mut().set_ai_depth(depth.clone());
+                log!("difiiculty changes to ", depth);
                 true
             }
         }
