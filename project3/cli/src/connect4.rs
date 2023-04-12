@@ -311,13 +311,13 @@ impl Board {
         player: char,
         mut alpha: i32,
         mut beta: i32,
-        ply: i32,
+        depth: i32,
     ) -> (i32, i32) {
         // check if the board is at a win or draw, game_value tells the computer which person has won or if there was a draw
         if self.is_terminal() {
             return (self.game_value(), 0);
-        } else if ply == 0 {
-            // here the algorithm has run out of depth, which was set by the difficulty
+        } else if depth == 0 {
+            // here the algorithm has run out of depth, which was set by the difficulty and instead randomly chooses a move to keep every game different
             return self.random_walk(player);
         }
 
@@ -332,7 +332,7 @@ impl Board {
             for col in self.get_legal_moves() {
                 self.grid.insert_chip(col, player);
                 // search at 1 more depth using recursion
-                let (new_eval, _) = self.alpha_beta('X', alpha, beta, ply - 1);
+                let (new_eval, _) = self.alpha_beta('X', alpha, beta, depth - 1);
 
                 // if the result found a better col, then replace
                 if new_eval > eval {
@@ -360,7 +360,7 @@ impl Board {
             for col in self.get_legal_moves() {
                 self.grid.insert_chip(col, player);
                 // search at 1 more depth using recursion
-                let (new_eval, _) = self.alpha_beta('O', alpha, beta, ply - 1);
+                let (new_eval, _) = self.alpha_beta('O', alpha, beta, depth - 1);
 
                 // if the result found a better col, then replace
                 if new_eval < eval {

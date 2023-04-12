@@ -203,7 +203,9 @@ fn toot_and_otto_2_player(player1_name: String, player2_name: String) {
 
             println!("Play again?");
             let mut selection = String::new();
-            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Did not enter a correct string");
 
             if selection.trim() == "y" || selection.trim() == "yes" {
                 board.restart();
@@ -273,7 +275,9 @@ fn toot_and_otto_computer(player1_name: String, difficulty: u32){
 
             println!("Play again?");
             let mut selection = String::new();
-            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Did not enter a correct string");
 
             if selection.trim() == "y" || selection.trim() == "yes" {
                 board.restart();
@@ -285,7 +289,9 @@ fn toot_and_otto_computer(player1_name: String, difficulty: u32){
 
             println!("Play again?");
             let mut selection = String::new();
-            io::stdin().read_line(&mut selection).expect("Did not enter a correct string");
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Did not enter a correct string");
 
             if selection.trim() == "y" || selection.trim() == "yes" {
                 board.restart();
@@ -352,7 +358,9 @@ fn main() {
                 1 => {
                     println!("Please enter player's name: ");
                     let mut player1_name = String::new();
-                    io::stdin().read_line(&mut player1_name).expect("Failed to read line");
+                    io::stdin()
+                        .read_line(&mut player1_name)
+                        .expect("Failed to read line");
 
 
                     println!("What difficulty would you like?");
@@ -422,7 +430,6 @@ fn main() {
 
             match choice2 {
                 1 => {
-                    // TODO AI TOOT AND OTTO
                     println!("Please enter player's name: ");
                     let mut player1_name = String::new();
                     io::stdin().read_line(&mut player1_name).expect("Failed to read line");
@@ -437,6 +444,7 @@ fn main() {
 
                     let mut difficulty = get_input(1, 5);
 
+                    // Difficulty here is lower than in connect 4 because it becomes too laggy with the depths farther than 7
                     match difficulty {
                         1 => {
                             toot_and_otto_computer(player1_name, 2);
@@ -462,12 +470,16 @@ fn main() {
                 2 => {
                     println!("Please enter player 1's name: ");
                     let mut player1_name = String::new();
-                    io::stdin().read_line(&mut player1_name).expect("Failed to read line");
+                    io::stdin()
+                        .read_line(&mut player1_name)
+                        .expect("Failed to read line");
 
                     println!("Please enter player 2's name: ");
                     let mut player2_name = String::new();
 
-                    io::stdin().read_line(&mut player2_name).expect("Failed to read line");
+                    io::stdin()
+                        .read_line(&mut player2_name)
+                        .expect("Failed to read line");
 
 
                     // Trim is used to remove the newline character

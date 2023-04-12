@@ -305,7 +305,7 @@ impl Board {
         if self.is_terminal() {
             return (self.game_value(), 0, last_move);
         } else if depth == 0 {
-            // here the algorithm has run out of depth, which was set by the difficulty
+            // here the algorithm has run out of depth, which was set by the difficulty and instead randomly chooses a move to keep every game different
             return self.random_walk(last_move);
         }
 
