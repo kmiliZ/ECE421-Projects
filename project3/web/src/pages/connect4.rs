@@ -59,7 +59,6 @@ pub enum Msg {
 }
 impl Connect4 {
     fn check_win(&self) -> bool {
-        log!("checking win...");
         if self.board.as_ref().borrow_mut().check_win() {
             return true;
         }
@@ -174,11 +173,13 @@ impl Component for Connect4 {
                             self.is_active = false;
                             let link = ctx.link().clone();
                             link.send_message(Msg::PostGame("".to_string()));
+                            return true;
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
                                 let link = ctx.link().clone();
                                 link.send_message(Msg::PostGame("draw".to_string()));
+                                return true;
                             }
                         }
                         // change current turn here, both board and connect4

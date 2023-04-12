@@ -176,10 +176,12 @@ impl Component for TootOtto {
                         if self.check_win() {
                             self.is_active = false;
                             link.send_message(Msg::PostGame("".to_string()));
+                            return true;
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
                                 link.send_message(Msg::PostGame("draw".to_string()));
+                                return true;
                             }
                         }
                         // change current turn here, both board and TootOtto
