@@ -235,7 +235,6 @@ impl Board {
             self.state = State::Running;
             return 100;
         } else {
-            // Should never reach here
             return 0;
         }
     }
@@ -307,7 +306,7 @@ impl Board {
             return (self.game_value(), 0, last_move);
         } else if depth == 0 {
             // here the algorithm has run out of depth, which was set by the difficulty
-            return (0, 0, last_move);;
+            return self.random_walk(last_move);
         }
 
         let mut optimal_move = 0;
