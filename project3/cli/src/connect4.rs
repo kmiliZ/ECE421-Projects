@@ -378,6 +378,9 @@ impl Board {
         }
     }
 
+    pub fn set_ai_depth(&mut self, new_difficulty: u32) {
+        self.ai_depth = new_difficulty;
+    }
 
 }
 
