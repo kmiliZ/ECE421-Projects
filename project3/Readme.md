@@ -1,9 +1,6 @@
 # Connect4
-Group member:
-Qi Zhou
-Tianyuan Fang
-Jakob Lau
-
+This application includes the computerized versions of the games "Connect4" and "Toot & Otto".
+The detailed instructions on set-up and execution of the project is discussed below. <br><br>
 ## Geting Started
 ### Get front end working
 Install trunk, which is a WASM web application bundler for Rust
@@ -43,3 +40,9 @@ go to **project3/cli**, then run
 ```
 cargo run
 ```
+
+
+roup member
+Qi Zhou
+Tianyuan Fang
+Jakob Lau
