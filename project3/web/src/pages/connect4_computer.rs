@@ -9,7 +9,6 @@ use crate::component::game_difficulty::GameDifficulty;
 use crate::component::player::Player;
 use crate::constants::COMPUTER_NAME;
 
-
 use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -70,13 +69,12 @@ impl Connect4Computer {
     fn change_current_board_turn(&mut self) {
         let player = &self.current_player;
 
-        self.board.borrow_mut().current_turn = player.to_char();
+        self.board.borrow_mut().current_turn = player.to_char_connect4();
     }
 
     fn computer_make_move(&mut self) -> i32 {
-        log!("compter makes move");
         let (_pruning_value, best_col) = self.board.as_ref().borrow_mut().alpha_beta(
-            self.current_player.to_char().clone(),
+            self.current_player.to_char_connect4().clone(),
             i32::MIN,
             i32::MAX,
             self.difficulty.get_depth_level(),
@@ -90,7 +88,7 @@ impl Connect4Computer {
             .as_ref()
             .borrow_mut()
             .grid
-            .insert_chip(col, self.current_player.to_char().clone());
+            .insert_chip(col, self.current_player.to_char_connect4().clone());
     }
 }
 

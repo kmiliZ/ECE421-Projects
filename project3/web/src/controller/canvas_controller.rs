@@ -161,7 +161,6 @@ pub fn animate(
     let window = web_sys::window().unwrap();
 
     if to_row * 75 >= current_position {
-        log!("draw circle");
         if current_position > 0 {
             clear_previous_frame(canvas_id.clone(), column, to_row);
             redraw_col_mask(canvas_id.clone(), column, to_row);
@@ -174,14 +173,12 @@ pub fn animate(
             text.clone(),
         );
         if to_row * 75 == current_position {
-            log!("else in animation");
             if is_win {
                 let win_string = format!(
                     "{} wins! clicked board to restart",
                     current_player_name.to_string()
                 );
                 display_text_on_canvas(canvas_id.clone(), win_string, "black".to_string());
-                // display_text_on_canvas(win_string);
             } else {
                 if is_draw {
                     display_text_on_canvas(

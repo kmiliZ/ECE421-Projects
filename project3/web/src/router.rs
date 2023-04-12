@@ -1,7 +1,8 @@
 use crate::pages::{
     connect4::Connect4, connect4_computer::Connect4Computer, game_history::GameHistory,
-    how_to_play_connect4::HowToPlayConnect4, how_to_play_toototto::HowToPlayToot, main_page::MainPage,
-    score_board::Score, toototto::TootOtto, toototto_computer::TootOttoComputer,
+    how_to_play_connect4::HowToPlayConnect4, how_to_play_toototto::HowToPlayToot,
+    main_page::MainPage, score_board::Score, tootOtto_computer::TootOttoComputer,
+    TootOtto::TootOtto,
 };
 use yew::prelude::*;
 use yew_router::prelude::*;

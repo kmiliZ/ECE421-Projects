@@ -4,9 +4,16 @@ pub enum Player {
 }
 
 impl Player {
-    pub fn to_char(&self) -> char {
+    pub fn to_char_connect4(&self) -> char {
         match self {
             Player::Player1 => 'X',
+            Player::Player2 => 'O',
+        }
+    }
+
+    pub fn to_char_toototto(&self) -> char {
+        match self {
+            Player::Player1 => 'T',
             Player::Player2 => 'O',
         }
     }

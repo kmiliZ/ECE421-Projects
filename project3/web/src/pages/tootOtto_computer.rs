@@ -40,7 +40,6 @@ pub enum Msg {
 }
 impl TootOttoComputer {
     fn check_win_otto(&self) -> bool {
-        log!("checking win...");
         if self.board.as_ref().borrow_mut().check_win_otto() {
             return true;
         }
@@ -48,7 +47,6 @@ impl TootOttoComputer {
     }
 
     fn check_win_toot(&self) -> bool {
-        log!("checking win...");
         if self.board.as_ref().borrow_mut().check_win_toot() {
             return true;
         }
@@ -80,18 +78,23 @@ impl TootOttoComputer {
     fn change_current_board_turn(&mut self) {
         let player = &self.current_player;
 
-        self.board.borrow_mut().current_turn = player.to_char();
+        self.board.borrow_mut().current_turn = player.to_char_toototto();
     }
 
     fn computer_make_move(&mut self) -> (i32, char) {
-        log!("compter makes move");
+        log!(
+            "compter makes move with turn char",
+            self.current_player.to_char_toototto().clone().to_string()
+        );
         let (_pruning_value, best_col, disc_char) = self.board.as_ref().borrow_mut().alpha_beta(
-            self.current_player.to_char().clone(),
+            self.current_player.to_char_toototto().clone(),
             i32::MIN,
             i32::MAX,
             self.difficulty.get_depth_level(),
             '_',
         );
+        log!("computer makes a move at", disc_char.to_string());
+
         return (best_col, disc_char);
     }
 
@@ -166,7 +169,7 @@ impl Component for TootOttoComputer {
                     if move_char == '_' {
                         disc_char = self.disc_type.to_char().clone();
                     }
-                    // log!(disc_char);
+
                     let inserted_row = self.insert_chip(col, disc_char);
 
                     let color = self.current_player.get_color().clone();
@@ -193,10 +196,12 @@ impl Component for TootOttoComputer {
                         if self.check_win() {
                             self.is_active = false;
                             link.send_message(Msg::PostGame("".to_string()));
+                            return true;
                         } else {
                             if self.check_draw() {
                                 self.is_active = false;
                                 link.send_message(Msg::PostGame("draw".to_string()));
+                                return true;
                             }
                         }
                         // change current turn here, both board and TootOtto

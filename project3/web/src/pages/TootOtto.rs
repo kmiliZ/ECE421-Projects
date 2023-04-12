@@ -79,7 +79,7 @@ impl TootOtto {
     fn change_current_board_turn(&mut self) {
         let player = &self.current_player;
 
-        self.board.borrow_mut().current_turn = player.to_char();
+        self.board.borrow_mut().current_turn = player.to_char_toototto();
     }
 }
 
