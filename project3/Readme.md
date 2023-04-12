@@ -42,6 +42,8 @@ cargo run
 ```
 
 ## Authors
-Qi Zhou
-Tianyuan Fang
+Qi Zhou,
+
+Tianyuan Fang,
+
 Jakob Lau
