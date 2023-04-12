@@ -41,8 +41,7 @@ go to **project3/cli**, then run
 cargo run
 ```
 
-
-roup member
+## Authors
 Qi Zhou
 Tianyuan Fang
 Jakob Lau
